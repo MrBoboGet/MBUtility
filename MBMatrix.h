@@ -174,7 +174,7 @@ namespace MBMath
 		void PopColumn(long long ColumnToRemove)
 		{
 			long long RowCount = NumberOfRows();
-			for (size_t i = 0; i < length; i++)
+			for (size_t i = 0; i < RowCount; i++)
 			{
 				MatrixData[i].erase(MatrixData[i].begin() + ColumnToRemove);
 			}
@@ -408,7 +408,7 @@ namespace MBMath
 			}
 			else
 			{
-				RightVector.VectorData = LeftMatrix * RightVector.VectorData.Transpose();
+				RightVector.VectorData = (LeftMatrix * RightVector.VectorData.Transpose()).Transpose();
 				return(RightVector);
 			}
 		}
@@ -512,18 +512,18 @@ namespace MBMath
 		{
 			MBVector3 ReturnValue(0,0,0);
 			MBMatrix<T> TempMatrix(2);
-			TempMatrix(0, 0) = VectorData(0, 1);
-			TempMatrix(1, 0) = VectorData(0, 2);
+			TempMatrix(0, 0) = this->VectorData(0, 1);
+			TempMatrix(1, 0) = this->VectorData(0, 2);
 			TempMatrix(0, 1) = RightVector.VectorData(0, 1);
 			TempMatrix(1, 1) = RightVector.VectorData(0, 2);
 			ReturnValue[0] = TempMatrix.Determinant();
-			TempMatrix(0, 0) = VectorData(0, 0);
-			TempMatrix(1, 0) = VectorData(0, 2);
+			TempMatrix(0, 0) = this->VectorData(0, 0);
+			TempMatrix(1, 0) = this->VectorData(0, 2);
 			TempMatrix(0, 1) = RightVector.VectorData(0, 0);
 			TempMatrix(1, 1) = RightVector.VectorData(0, 2);
 			ReturnValue[1] = -TempMatrix.Determinant();
-			TempMatrix(0, 0) = VectorData(0, 0);
-			TempMatrix(1, 0) = VectorData(0, 1);
+			TempMatrix(0, 0) = this->VectorData(0, 0);
+			TempMatrix(1, 0) = this->VectorData(0, 1);
 			TempMatrix(0, 1) = RightVector.VectorData(0, 0);
 			TempMatrix(1, 1) = RightVector.VectorData(0, 1);
 			ReturnValue[2] = TempMatrix.Determinant();
@@ -535,7 +535,7 @@ namespace MBMath
 		}
 		MBVector3() : MBVector<T>(3)
 		{
-			VectorData = MBMatrix<T>(1, 3);
+			this->VectorData = MBMatrix<T>(1, 3);
 		}
 		static MBMatrix<T> GetRotationMatrix(double AngleToRotate, MBVector<T> AxisToRotateFrom)
 		{
@@ -589,7 +589,7 @@ namespace MBMath
 		{
 			AngleToRotate *= (double)3.141592653589793238 / 180;
 			AxisToRotateFrom = AxisToRotateFrom.Normalized();
-			long long ColumnCount = VectorData.NumberOfColumns();
+			long long ColumnCount = this->VectorData.NumberOfColumns();
 			MBVector3 e1;
 			bool e1Finished = false;
 			for (size_t i = 0; i < ColumnCount; i++)
@@ -632,28 +632,28 @@ namespace MBMath
 			//std::cout << RegularRotation << std::endl;
 			MBMatrix<T> RotationMatrix = BaseMatrix * RegularRotation * BaseMatrix.Transpose();
 			//std::cout << RotationMatrix << std::endl;
-			VectorData = (RotationMatrix * VectorData.Transpose()).Transpose();
+			this->VectorData = (RotationMatrix * this->VectorData.Transpose()).Transpose();
 		}
 		MBVector3(T x , T y, T z)
 		{
-			VectorData = MBMatrix<T>(1, 3);
-			VectorData(0, 0) = x;
-			VectorData(0, 1) = y;
-			VectorData(0, 2) = z;
+			this->VectorData = MBMatrix<T>(1, 3);
+			this->VectorData(0, 0) = x;
+			this->VectorData(0, 1) = y;
+			this->VectorData(0, 2) = z;
 		}
 		MBVector3(MBMatrix<T> MatrixToConvert)
 		{
 			if (MatrixToConvert.NumberOfColumns() == 3)
 			{
-				VectorData(0, 0) = MatrixToConvert(0, 0);
-				VectorData(0, 1) = MatrixToConvert(0, 1);
-				VectorData(0, 2) = MatrixToConvert(0, 2);
+				this->VectorData(0, 0) = MatrixToConvert(0, 0);
+				this->VectorData(0, 1) = MatrixToConvert(0, 1);
+				this->VectorData(0, 2) = MatrixToConvert(0, 2);
 			}
 			else if(MatrixToConvert.NumberOfRows() == 3)
 			{
-				VectorData(0, 0) = MatrixToConvert(0, 0);
-				VectorData(0, 1) = MatrixToConvert(1, 0);
-				VectorData(0, 2) = MatrixToConvert(2, 0);
+				this->VectorData(0, 0) = MatrixToConvert(0, 0);
+				this->VectorData(0, 1) = MatrixToConvert(1, 0);
+				this->VectorData(0, 2) = MatrixToConvert(2, 0);
 			}
 			else
 			{
