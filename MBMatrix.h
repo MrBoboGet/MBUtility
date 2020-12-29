@@ -807,7 +807,7 @@ namespace MBMath
 		{
 			for (size_t j = 0; j < Left.MatrixData[0].size(); j++)
 			{
-				MatrixToReturn.MatrixData[i][j] = Left[i, j] + Right[i, j];
+				MatrixToReturn.MatrixData[i][j] = Left(i, j) + Right(i, j);
 			}
 		}
 	}
@@ -818,7 +818,7 @@ namespace MBMath
 		{
 			for (size_t j = 0; j < Left.MatrixData[0].size(); j++)
 			{
-				MatrixToReturn.MatrixData[i][j] = Left[i, j] - Right[i, j];
+				MatrixToReturn.MatrixData[i][j] = Left(i, j) - Right(i, j);
 			}
 		}
 	}
