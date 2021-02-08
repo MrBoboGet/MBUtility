@@ -396,6 +396,30 @@ namespace MBMath
 			}
 			return(ReturnValue);
 		}
+		MBVector<T> operator-(MBVector<T> RightVector)
+		{
+			int RightColumns = RightVector.VectorData.NumberOfColumns();
+			int LeftColumns = this->VectorData.NumberOfColumns();
+			int MaxColumns;
+			if (RightColumns > LeftColumns)
+			{
+				MaxColumns = RightColumns;
+			}
+			else
+			{
+				MaxColumns = LeftColumns;
+			}
+			MBVector<float> ReturnValue = MBVector<float>(MaxColumns);
+			for (size_t i = 0; i < RightColumns; i++)
+			{
+				ReturnValue[i] -= RightVector[i];
+			}
+			for (size_t i = 0; i < LeftColumns; i++)
+			{
+				ReturnValue[i] += (*this)[i];
+			}
+			return(ReturnValue);
+		}
 		friend std::ostream& operator<<(std::ostream& os, MBVector<T> VectorToPrint)
 		{			
 			return (os<<VectorToPrint.VectorData);
@@ -585,6 +609,11 @@ namespace MBMath
 			MBMatrix<T> RotationMatrix = BaseMatrix * RegularRotation * BaseMatrix.Transpose();
 			return(RotationMatrix);
 		}
+		//TODO implementera RotationFromVector
+		static MBVector3<T> RotationFromVector(MBVector3<T> CurrentVector, MBVector3<T> OrignalVector)
+		{
+			return(MBVector3<T>(0, 0, 0));
+		}
 		void Rotate(double AngleToRotate, MBVector<T> AxisToRotateFrom)
 		{
 			AngleToRotate *= (double)3.141592653589793238 / 180;
@@ -634,6 +663,10 @@ namespace MBMath
 			//std::cout << RotationMatrix << std::endl;
 			this->VectorData = (RotationMatrix * this->VectorData.Transpose()).Transpose();
 		}
+		MBVector3<T> LinearInterpolation(MBVector3<T> EndVector,float NormalizedTime)
+		{
+			return((1 - NormalizedTime) * (*this) + NormalizedTime * EndVector);
+		}
 		MBVector3(T x , T y, T z)
 		{
 			this->VectorData = MBMatrix<T>(1, 3);
@@ -674,6 +707,10 @@ namespace MBMath
 		MBMatrix<T> MatrixData = MBMatrix<T>(4);
 		std::vector<T> ContinousData = std::vector<T>(16);
 	public:
+		MBMath::MBMatrix<T> GetMatrixData()
+		{
+			return(MatrixData);
+		}
 		void PrintWolframMatrix()
 		{
 			std::cout <<"{";
@@ -794,7 +831,255 @@ namespace MBMath
 
 		}
 	};
+	template <typename T>
+	class Quaternion
+	{
+	private:
+	public:
+		T a = 0;
+		T i = 0;
+		T j = 0;
+		T k = 0;
+		friend std::ostream& operator<<(std::ostream& os, Quaternion<T> QuaternionToPrint)
+		{
+			os << QuaternionToPrint.a << " " << QuaternionToPrint.i << " " << QuaternionToPrint.j << " " << QuaternionToPrint.k;
+			return(os);
+		}
+		Quaternion<T>& operator+=(const Quaternion<T>& RightQuaternion)
+		{
+			this->a += RightQuaternion.a;
+			this->i += RightQuaternion.i;
+			this->j += RightQuaternion.j;
+			this->k += RightQuaternion.k;
+			return(*this);
+		}
+		Quaternion<T>& operator-=(const Quaternion<T>& RightQuaternion)
+		{
+			this->a -= RightQuaternion.a;
+			this->i -= RightQuaternion.i;
+			this->j -= RightQuaternion.j;
+			this->k -= RightQuaternion.k;
+			return(*this);
+		}
+		Quaternion<T>& operator*=(const Quaternion<T>& RightQuaternion)
+		{
+			MBVector3<T> ThisVector = MBVector3<T>(this->i, this->j, this->k);
+			MBVector3<T> RightVector = MBVector3<T>(RightQuaternion.i, RightQuaternion.j, RightQuaternion.k);
+			MBVector3<T> NewVector = this->a*RightVector+RightQuaternion.a*ThisVector+ThisVector.CrossProduct(RightVector);
+			this->a = this->a * RightQuaternion.a - ThisVector.DotProduct(RightVector);
+			this->i = NewVector[0];
+			this->j = NewVector[1];
+			this->k = NewVector[2];
+			return(*this);
+		}
+		Quaternion<T>& operator*=(const T& RightScalar)
+		{
+			this->a *= RightScalar;
+			this->i *= RightScalar;
+			this->j *= RightScalar;
+			this->k *= RightScalar;
+			return(*this);
+		}
+		Quaternion<T>& operator/=(const T& RightScalar)
+		{
+			this->a /= RightScalar;
+			this->i /= RightScalar;
+			this->j /= RightScalar;
+			this->k /= RightScalar;
+			return(*this);
+		}
+		friend Quaternion<T> operator-(const Quaternion<T>& LeftQuaternion ,const Quaternion<T>& RightQuaternion)
+		{
+			Quaternion<T> Result(LeftQuaternion);
+			Result -= RightQuaternion;
+			return(Result);
+		}
+		friend Quaternion<T> operator+(const Quaternion<T>& LeftQuaternion, const Quaternion<T>& RightQuaternion)
+		{
+			Quaternion<T> Result(LeftQuaternion);
+			Result += RightQuaternion;
+			return(Result);
+		}
+		friend Quaternion<T> operator*(const Quaternion<T>& LeftQuaternion, const T RightScalar)
+		{
+			Quaternion<T> Result(LeftQuaternion);
+			Result *= RightScalar;
+			return(Result);
+		}
+		friend Quaternion<T> operator*(const T& LeftScalar, const Quaternion<T>& RightQuaternion)
+		{
+			Quaternion<T> Result(RightQuaternion);
+			Result *= LeftScalar;
+			return(Result);
+		}
+		friend Quaternion<T> operator/(const Quaternion<T>& LeftQuaternion, const T RightScalar)
+		{
+			Quaternion<T> Result(LeftQuaternion);
+			Result /= RightScalar;
+			return(Result);
+		}
+		friend Quaternion<T> operator*(const Quaternion<T>& LeftQuaternion,const Quaternion<T>& RightQuaternion)
+		{
+			Quaternion<T> Result(LeftQuaternion);
+			Result *= RightQuaternion;
+			return(Result);
+		}
+		Quaternion(T NewA, T NewI, T NewJ, T NewK)
+		{
+			this->a = NewA;
+			this->i = NewI;
+			this->j = NewJ;
+			this->k = NewK;
+		}
+		Quaternion(float RotationAngle, MBVector3<T> RotationVector)
+		{
+			//omvandlar rotationen från euler till radianer
+			RotationAngle = RotationAngle * 3.1415926535 / 180;
+			RotationVector = RotationVector.Normalized();
+			RotationVector = RotationVector * std::sin(RotationAngle / 2);
+			this->a = std::cos(RotationAngle/2);
+			this->i = RotationVector[0];
+			this->j = RotationVector[1];
+			this->k = RotationVector[2];
+		}
+		Quaternion()
+		{
 
+		}
+		MBVector3<T> RotateVector(MBVector3<T> VectorToRotate)
+		{
+			Quaternion<T> NormalizedQuaternion = (*this);
+			NormalizedQuaternion.Normalize();
+			Quaternion<T> InvertedQuaternion = NormalizedQuaternion;
+			InvertedQuaternion.Invert();
+			Quaternion<T> VectorQuaternion = Quaternion<T>(0, VectorToRotate[0], VectorToRotate[1], VectorToRotate[2]);
+			VectorQuaternion = NormalizedQuaternion*VectorQuaternion * InvertedQuaternion;
+			return(MBVector3<T>(VectorQuaternion.i, VectorQuaternion.j, VectorQuaternion.k));
+		}
+		MBMatrix<T> GetRotationMatrix()
+		{
+			MBMatrix<T> ReturnValue = MBMatrix<T>(3);
+			//eventeullt normaliserar vi inna, har ingen sån, men antar i alla fall att 
+			ReturnValue(0, 0) = 1 - 2 * (j * j + k * k);
+			ReturnValue(0, 1) = 2 * (i * j - k * a);
+			ReturnValue(0, 2) = 2 * (i * k + j * a);
+			ReturnValue(1, 0) = 2 * (i * j + k * a);
+			ReturnValue(1, 1) =1- 2 * (i * i + k * k);
+			ReturnValue(1, 2) =2 * (j * k - i * a);
+			ReturnValue(2, 0) =2 * (i * k - j * a);
+			ReturnValue(2, 1) =2 * (j * k + i * a);
+			ReturnValue(2, 2) =1-2 * (i * i + j * j);
+			return(ReturnValue);
+		}
+		/* snodd wikipedia kod
+		Quaternion slerp(Quaternion v0, Quaternion v1, double t) {
+    // Only unit quaternions are valid rotations.
+    // Normalize to avoid undefined behavior.
+    v0.normalize();
+    v1.normalize();
+
+    // Compute the cosine of the angle between the two vectors.
+    double dot = dot_product(v0, v1);
+
+    // If the dot product is negative, slerp won't take
+    // the shorter path. Note that v1 and -v1 are equivalent when
+    // the negation is applied to all four components. Fix by 
+    // reversing one quaternion.
+    if (dot < 0.0f) {
+        v1 = -v1;
+        dot = -dot;
+    }
+
+    const double DOT_THRESHOLD = 0.9995;
+    if (dot > DOT_THRESHOLD) {
+        // If the inputs are too close for comfort, linearly interpolate
+        // and normalize the result.
+
+        Quaternion result = v0 + t*(v1 - v0);
+        result.normalize();
+        return result;
+    }
+
+    // Since dot is in range [0, DOT_THRESHOLD], acos is safe
+    double theta_0 = acos(dot);        // theta_0 = angle between input vectors
+    double theta = theta_0*t;          // theta = angle between v0 and result
+    double sin_theta = sin(theta);     // compute this value only once
+    double sin_theta_0 = sin(theta_0); // compute this value only once
+
+    double s0 = cos(theta) - dot * sin_theta / sin_theta_0;  // == sin(theta_0 - theta) / sin(theta_0)
+    double s1 = sin_theta / sin_theta_0;
+
+    return (s0 * v0) + (s1 * v1);
+}
+		*/
+
+		Quaternion<T> Slerp(Quaternion<T> EndQuaternion, float	NormalizedTime)
+		{
+			//förutsätter att quaternionerna är normaliserade
+			EndQuaternion.Normalize();
+			Quaternion<T> Copy = *this;
+			Copy.Normalize();
+			MBVector<T> v0(4);
+			v0[0] = Copy.a;
+			v0[1] = Copy.i;
+			v0[2] = Copy.j;
+			v0[3] = Copy.k;
+			MBVector<T> v1(4);
+			v1[0] = EndQuaternion.a;
+			v1[1] = EndQuaternion.i;
+			v1[2] = EndQuaternion.j;
+			v1[3] = EndQuaternion.k;
+
+			// Compute the cosine of the angle between the two vectors.
+			double dot = v0.DotProduct(v1);
+
+			// If the dot product is negative, slerp won't take
+			// the shorter path. Note that v1 and -v1 are equivalent when
+			// the negation is applied to all four components. Fix by 
+			// reversing one quaternion.
+			if (dot < 0.0f) {
+				v1 = -1*v1;
+				dot = -dot;
+			}
+
+			const double DOT_THRESHOLD = 0.9995;
+			if (dot > DOT_THRESHOLD) {
+				// If the inputs are too close for comfort, linearly interpolate
+				// and normalize the result.
+
+				MBVector<T> result = v0 + (NormalizedTime * (v1 - v0));
+				result = result.Normalized();
+				return(Quaternion(result[0],result[1],result[2],result[3]));
+			}
+
+			// Since dot is in range [0, DOT_THRESHOLD], acos is safe
+			double theta_0 = std::acos(dot);        // theta_0 = angle between input vectors
+			double theta = theta_0 * NormalizedTime;          // theta = angle between v0 and result
+			double sin_theta = std::sin(theta);     // compute this value only once
+			double sin_theta_0 = std::sin(theta_0); // compute this value only once
+
+			double s0 = std::cos(theta) - dot * sin_theta / sin_theta_0;  // == sin(theta_0 - theta) / sin(theta_0)
+			double s1 = sin_theta / sin_theta_0;
+			MBVector<T> ResultVector = (s0 * v0) + (s1 * v1);
+			return(Quaternion<T>(ResultVector[0],ResultVector[1],ResultVector[2],ResultVector[3]));
+		}
+		void Normalize()
+		{
+			T Magnitude = Sqrt<T>(a * a + i * i + j * j + k * k);
+			this->a /= Magnitude;
+			this->i /= Magnitude;
+			this->j /= Magnitude;
+			this->k /= Magnitude;
+		}
+		void Invert()
+		{
+			T Denominator = a * a + i * i + j * j + k * k;
+			this->a = a / Denominator;
+			this->i = -i / Denominator;
+			this->j = -j / Denominator;
+			this->k = -k / Denominator;
+		}
+	};
 };
 //MBMath::MBMatrix<float> Test();
 //början på cpp filen

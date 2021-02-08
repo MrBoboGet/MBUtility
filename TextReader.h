@@ -12,9 +12,29 @@ private:
 	std::vector<int> LinePositions = std::vector<int>(0);
 	int MaxLineLength = 1000;
 public:
-	TextReader(std::string FilePath);
-	int Size();
-	~TextReader();
+	TextReader(std::string FilePath)
+	{
+		DataStreamen = std::ifstream(FilePath);
+		FilePathOfFile = FilePath;
+		std::string line;
+		NumberOfLines = 0;
+		//positionen för första raden
+		LinePositions.push_back(DataStreamen.tellg());
+		while (std::getline(DataStreamen, line))
+		{
+			NumberOfLines += 1;
+			LinePositions.push_back(DataStreamen.tellg());
+		}
+		IsOpen = true;
+	}
+	int Size()
+	{
+		return(NumberOfLines);
+	}
+	~TextReader()
+	{
+		DataStreamen.close();
+	}
 	std::string operator[](int Index)
 	{
 		DataStreamen.clear();
@@ -25,43 +45,18 @@ public:
 		std::getline(DataStreamen, Linen);
 		return(Linen);
 	}
-	std::vector<std::string> GetAllLines();
-};
-int TextReader::Size()
-{
-	return(NumberOfLines);
-}
-std::vector<std::string> TextReader::GetAllLines()
-{
-	std::vector<std::string> ReturValue = std::vector<std::string>(0);
-	std::string line;
-	//DataStreamen.close();
-	//DataStreamen.open(FilePathOfFile);
-	DataStreamen.clear();
-	DataStreamen.seekg(0,DataStreamen.beg);
-	while (std::getline(DataStreamen, line))
+	std::vector<std::string> GetAllLines()
 	{
-		ReturValue.push_back(line);
+		std::vector<std::string> ReturValue = std::vector<std::string>(0);
+		std::string line;
+		//DataStreamen.close();
+		//DataStreamen.open(FilePathOfFile);
+		DataStreamen.clear();
+		DataStreamen.seekg(0, DataStreamen.beg);
+		while (std::getline(DataStreamen, line))
+		{
+			ReturValue.push_back(line);
+		}
+		return(ReturValue);
 	}
-	return(ReturValue);
-}
-TextReader::TextReader(std::string FilePath)
-{
-	DataStreamen = std::ifstream(FilePath);
-	FilePathOfFile = FilePath;
-    std::string line;
-	NumberOfLines = 0;
-	//positionen för första raden
-	LinePositions.push_back(DataStreamen.tellg());
-    while (std::getline(DataStreamen, line))
-    {
-		NumberOfLines += 1;
-		LinePositions.push_back(DataStreamen.tellg());
-    }
-	IsOpen = true;
-}
-
-TextReader::~TextReader()
-{
-	DataStreamen.close();
-}
+};
