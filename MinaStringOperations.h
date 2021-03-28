@@ -2,7 +2,7 @@
 #include<vector>
 #include <string>
 #include <unordered_map>
-inline std::vector<std::string> Split(std::string UrsprungsStringen, std::string SplitStringen)
+inline std::vector<std::string> Split(std::string const& UrsprungsStringen, std::string const& SplitStringen)
 {
 	std::vector<std::string> Result = std::vector<std::string>(0);
 	int StartCharacter = 0;
@@ -17,7 +17,7 @@ inline std::vector<std::string> Split(std::string UrsprungsStringen, std::string
 	Result.push_back(UrsprungsStringen.substr(StartCharacter));
 	return(Result);
 }
-inline void ReplaceAll(std::string* Stringen, std::string StringToReplace, std::string StringToReplaceWith)
+inline void ReplaceAll(std::string* Stringen, std::string const& StringToReplace, std::string const& StringToReplaceWith)
 {
 	size_t index = 0;
 	while (true) {
@@ -104,3 +104,54 @@ inline std::string HexEncodeByte(uint8_t ByteToEncode)
 	ReturnValue += CharMap[ByteToEncode % 16];
 	return(ReturnValue);
 }
+inline std::string HexEncodeInt(uint32_t IntToEncode)
+{
+	std::string ReturnValue = "";
+	for (int i = 3; i >= 0;i--)
+	{
+		ReturnValue += HexEncodeByte(IntToEncode >> (8 * i));
+	}
+	return(ReturnValue);
+}
+namespace MBUtility
+{
+	inline char HexValueToByte(std::string const& StringToConvert,bool* OutError)
+	{
+		char ReturnValue = 0;
+		if (StringToConvert.size() != 2)
+		{
+			*OutError = false;
+			return(ReturnValue);
+		}
+		unsigned char Characters[2] = { StringToConvert[0],StringToConvert[1] };
+		for (size_t i = 0; i < 2; i++)
+		{
+			if (Characters[i] >= 71)
+			{
+				Characters[i] -= 32;
+			}
+			if (Characters[i] < 48 || (Characters[i] > 57 && Characters[i] < 65))
+			{
+				*OutError = false;
+				return(ReturnValue);
+			}
+			if (Characters[i] > 70)
+			{
+				*OutError = false;
+				return(ReturnValue);
+			}
+		}
+		for (size_t i = 0; i < 2; i++)
+		{
+			if (Characters[i] < 65)
+			{
+				ReturnValue += ((Characters[i] - 48) << ((1-i)*4));
+			}
+			else
+			{
+				ReturnValue += ((Characters[i] - 55) << ((1 - i) * 4));
+			}
+		}
+		return(ReturnValue);
+	}
+};
