@@ -113,45 +113,45 @@ inline std::string HexEncodeInt(uint32_t IntToEncode)
 	}
 	return(ReturnValue);
 }
-namespace MBUtility
-{
-	inline char HexValueToByte(std::string const& StringToConvert,bool* OutError)
-	{
-		char ReturnValue = 0;
-		if (StringToConvert.size() != 2)
-		{
-			*OutError = false;
-			return(ReturnValue);
-		}
-		unsigned char Characters[2] = { StringToConvert[0],StringToConvert[1] };
-		for (size_t i = 0; i < 2; i++)
-		{
-			if (Characters[i] >= 71)
-			{
-				Characters[i] -= 32;
-			}
-			if (Characters[i] < 48 || (Characters[i] > 57 && Characters[i] < 65))
-			{
-				*OutError = false;
-				return(ReturnValue);
-			}
-			if (Characters[i] > 70)
-			{
-				*OutError = false;
-				return(ReturnValue);
-			}
-		}
-		for (size_t i = 0; i < 2; i++)
-		{
-			if (Characters[i] < 65)
-			{
-				ReturnValue += ((Characters[i] - 48) << ((1-i)*4));
-			}
-			else
-			{
-				ReturnValue += ((Characters[i] - 55) << ((1 - i) * 4));
-			}
-		}
-		return(ReturnValue);
-	}
-};
+//namespace MBUtility
+//{
+//	inline char HexValueToByte(std::string const& StringToConvert,bool* OutError)
+//	{
+//		char ReturnValue = 0;
+//		if (StringToConvert.size() != 2)
+//		{
+//			*OutError = false;
+//			return(ReturnValue);
+//		}
+//		unsigned char Characters[2] = { StringToConvert[0],StringToConvert[1] };
+//		for (size_t i = 0; i < 2; i++)
+//		{
+//			if (Characters[i] >= 71)
+//			{
+//				Characters[i] -= 32;
+//			}
+//			if (Characters[i] < 48 || (Characters[i] > 57 && Characters[i] < 65))
+//			{
+//				*OutError = false;
+//				return(ReturnValue);
+//			}
+//			if (Characters[i] > 70)
+//			{
+//				*OutError = false;
+//				return(ReturnValue);
+//			}
+//		}
+//		for (size_t i = 0; i < 2; i++)
+//		{
+//			if (Characters[i] < 65)
+//			{
+//				ReturnValue += ((Characters[i] - 48) << ((1-i)*4));
+//			}
+//			else
+//			{
+//				ReturnValue += ((Characters[i] - 55) << ((1 - i) * 4));
+//			}
+//		}
+//		return(ReturnValue);
+//	}
+//};

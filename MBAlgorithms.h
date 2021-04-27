@@ -1,3 +1,4 @@
+#pragma once
 namespace MBAlgorithms
 {
 	template<typename Container, typename Value> int BinarySearch(Container const& ContainerToSearch, Value const& ValueToGet)
@@ -6,10 +7,14 @@ namespace MBAlgorithms
 		int NumberOfElements = ContainerToSearch.size();
 		int LowerLimit = -1;
 		int UpperLimit = NumberOfElements;
+		if (NumberOfElements == 0)
+		{
+			return(-1);
+		}
 		while (true)
 		{
 			int CurrentGuess = (LowerLimit + UpperLimit) / 2;
-			if (ContainerToSearch[CurrentGuess] >= ValueToGet)
+			if (ContainerToSearch[CurrentGuess] < ValueToGet)
 			{
 				LowerLimit = CurrentGuess;
 			}
@@ -18,11 +23,11 @@ namespace MBAlgorithms
 				UpperLimit = CurrentGuess;
 			}
 
-			if (UpperLimit - LowerLimit == 1)
+			if (UpperLimit - LowerLimit == 1 || ContainerToSearch[CurrentGuess] == ValueToGet)
 			{
-				if (ContainerToSearch[LowerLimit] == ValueToGet)
+				if (ContainerToSearch[CurrentGuess] == ValueToGet)
 				{
-					ReturnValue = LowerLimit;
+					ReturnValue = CurrentGuess;
 				}
 				break;
 			}
