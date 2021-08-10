@@ -212,4 +212,13 @@ namespace MBUtility
 		}
 		return(ReturnValue);
 	}
+	inline std::string URLEncodeData(std::string const& DataToEncode)
+	{
+		std::string ReturnValue = "";
+		for (size_t i = 0; i < DataToEncode.size(); i++)
+		{
+			ReturnValue += "%" + HexEncodeByte(DataToEncode[i]);
+		}
+		return(ReturnValue);
+	}
 };

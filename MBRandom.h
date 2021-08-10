@@ -1,13 +1,13 @@
 #include <string>
 #define _CRT_RAND_S
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
 #include <stdlib.h>  
 #elif __linux__
 #include <sys/random.h>
 #endif
 namespace MBRandom
 {
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
 	inline char GetRandomByte()
 	{
 		unsigned int RandomNumber = 0;
