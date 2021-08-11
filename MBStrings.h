@@ -173,15 +173,10 @@ namespace MBUtility
 		}
 		return(ReturnValue);
 	}
-	inline char HexValueToByte(std::string const& StringToConvert, bool* OutError)
+	inline char HexValueToByte(char FirstCharacter, char SecondCharacter,bool* OutError)
 	{
 		char ReturnValue = 0;
-		if (StringToConvert.size() != 2)
-		{
-			*OutError = false;
-			return(ReturnValue);
-		}
-		unsigned char Characters[2] = { StringToConvert[0],StringToConvert[1] };
+		unsigned char Characters[2] = { FirstCharacter,SecondCharacter };
 		for (size_t i = 0; i < 2; i++)
 		{
 			if (Characters[i] >= 71)
@@ -212,12 +207,73 @@ namespace MBUtility
 		}
 		return(ReturnValue);
 	}
+	inline char HexValueToByte(std::string const& StringToConvert, bool* OutError)
+	{
+		char ReturnValue = 0;
+		if (StringToConvert.size() != 2)
+		{
+			*OutError = false;
+			return(ReturnValue);
+		}
+		return(HexValueToByte(StringToConvert[0], StringToConvert[1], OutError));
+	}
 	inline std::string URLEncodeData(std::string const& DataToEncode)
 	{
 		std::string ReturnValue = "";
 		for (size_t i = 0; i < DataToEncode.size(); i++)
 		{
 			ReturnValue += "%" + HexEncodeByte(DataToEncode[i]);
+		}
+		return(ReturnValue);
+	}
+	inline bool CharIsNumeric(char CharToCheck)
+	{
+		return(CharToCheck >= 48 && CharToCheck <= 57);
+	}
+	inline bool CharIsAlphabetical(char CharToCheck)
+	{
+		return((CharToCheck >= 65 && CharToCheck <= 90) || (CharToCheck >= 97 && CharToCheck <= 122));
+	}
+	inline bool CharIsControl(char CharToCheck)
+	{
+		return(CharToCheck >= 0 && CharToCheck < 32);
+	}
+	inline std::string URLDecodeData(std::string const& DataToDecode,bool* OutError)
+	{
+		std::string ReturnValue = "";
+		ReturnValue.reserve(DataToDecode.size());
+		size_t ParseOffset = 0;
+		while (ParseOffset < DataToDecode.size())
+		{
+			char CurrentChar = DataToDecode[ParseOffset];
+			if (CurrentChar == '+')
+			{
+				ParseOffset += 1;
+				ReturnValue += ' ';
+			}
+			else if (CurrentChar == '%')
+			{
+				ParseOffset += 1;
+				if (ParseOffset + 1 >= DataToDecode.size())
+				{
+					//ett error hände, vi kan inte korrekt URL decoda
+					*OutError = false;
+					break;
+				}
+				bool DecodeError = true;
+				ReturnValue += HexValueToByte(DataToDecode[ParseOffset], DataToDecode[ParseOffset + 1], &DecodeError);
+				if (!DecodeError)
+				{
+					*OutError = false;
+					break;
+				}
+				ParseOffset += 2;
+			}
+			else
+			{
+				ParseOffset += 1;
+				ReturnValue += CurrentChar;
+			}
 		}
 		return(ReturnValue);
 	}
