@@ -38,7 +38,7 @@ namespace MBUtility
 			index += StringToReplaceWith.size();
 		}
 	}
-	inline std::string ReplaceAll(std::string Stringen, std::string StringToReplace, std::string StringToReplaceWith)
+	inline std::string ReplaceAll(std::string Stringen, std::string const& StringToReplace, std::string const& StringToReplaceWith)
 	{
 		size_t index = 0;
 		while (true) {
@@ -112,7 +112,7 @@ namespace MBUtility
 		}
 		return(ReturnValue);
 	}
-	inline std::string HexEncodeString(std::string StringToConvert)
+	inline std::string HexEncodeString(std::string const& StringToConvert)
 	{
 		std::string ReturnValue = "";
 		std::unordered_map<uint8_t, char> CharMap(0);
@@ -136,7 +136,6 @@ namespace MBUtility
 		{
 			ReturnValue += CharMap[uint8_t(StringToConvert[i]) >> 4];
 			ReturnValue += CharMap[uint8_t(StringToConvert[i]) % 16];
-			ReturnValue += " ";
 		}
 		return(ReturnValue);
 	}
