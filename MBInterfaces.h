@@ -1,5 +1,6 @@
 #pragma once
 #include <fstream>
+#include <ostream>
 #include <string>
 #include <cstdint>
 #include <algorithm>
@@ -18,6 +19,105 @@ namespace MBUtility
 		}
 		//virtual bool DataAvailable();
 		virtual ~MBOctetInputStream()
+		{
+
+		}
+	};
+	class MBOctetOutputStream
+	{
+	private:
+
+	public:
+		virtual size_t Write(const void* DataToWrite, size_t DataToWriteSize) = 0;
+		virtual ~MBOctetOutputStream()
+		{
+
+		}
+	};
+	class MBSearchableOutputStream : public MBOctetOutputStream
+	{
+	public:
+		virtual uintmax_t SetOutputPosition(uintmax_t NewOutputPosition) = 0;
+		virtual uintmax_t GetOutputPosition() = 0;
+	};
+	class MBFileOutputStream : public MBSearchableOutputStream
+	{
+	private:
+		bool m_UseReference = false;
+		std::ofstream m_FileOutput;
+		std::ofstream* m_ReferenceOutput;
+
+		std::ofstream* p_GetOutputStream()
+		{
+			if (m_UseReference)
+			{
+				return(m_ReferenceOutput);
+			}
+			else
+			{
+				return(&m_FileOutput);
+			}
+		}
+	public:
+		MBFileOutputStream(std::ofstream* OutputStream)
+		{
+			m_ReferenceOutput = OutputStream;
+			m_UseReference = true;
+		}
+
+		size_t Write(const void* DataToWrite, size_t DataToWriteSize) override
+		{
+			std::ofstream* AssociatedFile = p_GetOutputStream();
+			AssociatedFile->write((const char*)DataToWrite, DataToWriteSize);
+			return(0);
+		}
+		uintmax_t SetOutputPosition(uintmax_t NewOutputPosition) override
+		{
+			std::ofstream* AssociatedFile = p_GetOutputStream();
+			AssociatedFile->seekp(NewOutputPosition);
+			return(0);
+		}
+		uintmax_t GetOutputPosition() override
+		{
+			std::ofstream* AssociatedFile = p_GetOutputStream();
+			uintmax_t ReturnValue = AssociatedFile->tellp();
+			return(ReturnValue);
+		}
+		~MBFileOutputStream() override
+		{
+
+		}
+	};
+	class MBStringOutputStream : public MBSearchableOutputStream
+	{
+	private:
+		std::string* m_OutputString = nullptr;
+		size_t m_OutputPosition = 0;
+	public:
+		MBStringOutputStream(std::string& OutputString)
+		{
+			m_OutputString = &OutputString;
+		}
+		size_t Write(const void* DataToWrite, size_t DataToWriteSize) override
+		{
+			if (m_OutputPosition + DataToWriteSize > m_OutputString->size())
+			{
+				m_OutputString->resize(m_OutputPosition + DataToWriteSize, 0);
+			}
+			std::memcpy(m_OutputString->data() + m_OutputPosition, DataToWrite, DataToWriteSize);
+			m_OutputPosition += DataToWriteSize;
+			return(DataToWriteSize);
+		}
+		uintmax_t SetOutputPosition(uintmax_t NewOutputPosition) override
+		{
+			m_OutputPosition = NewOutputPosition;
+			return(NewOutputPosition);
+		}
+		uintmax_t GetOutputPosition() override
+		{
+			return(m_OutputPosition);
+		}
+		~MBStringOutputStream() override
 		{
 
 		}
