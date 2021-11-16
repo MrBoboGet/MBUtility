@@ -1,2 +1,4 @@
 Excludes:
 /.git/
+/.vs/
+/out/

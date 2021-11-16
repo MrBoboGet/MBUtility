@@ -1,4 +1,5 @@
 #pragma once
+#include <cmath>
 namespace MBMath
 {
 	template <typename T> T Sqrt(T NumberToSquare)
@@ -16,5 +17,15 @@ namespace MBMath
 		}
 		return(Guess);
 		//nu blir frågan hur vi får fram den, om roten är mindre än sqrt 2 tar vi bara det talet, annars tar vi talet delat på 2
+	}
+	template<> 
+	inline double Sqrt<double>(double NumberToSquare)
+	{
+		return(std::sqrt(NumberToSquare));
+	}
+	template<> 
+	inline float Sqrt<float>(float NumberToSquare)
+	{
+		return(std::sqrt(NumberToSquare));
 	}
 };

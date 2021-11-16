@@ -452,6 +452,10 @@ namespace MBMath
 		{
 			return(VectorData(0, Index));
 		}
+		T const& operator[](long long Index) const
+		{
+			return(VectorData(0, Index));
+		}
 		friend	MBVector<T> operator*(MBVector<T> LeftVector, T RightScalar)
 		{
 			int ColumnCount = LeftVector.VectorData.NumberOfColumns();
@@ -1078,6 +1082,85 @@ namespace MBMath
 			this->i = -i / Denominator;
 			this->j = -j / Denominator;
 			this->k = -k / Denominator;
+		}
+	};
+
+
+	template <typename T,size_t C> 
+	class MBStaticVector
+	{
+	private:
+		T m_InternalArray[C];
+	public:
+
+		//MBStaticVector(T const& ... args)
+		//{
+		//	m_InternalArray = { args... };
+		//}
+		T& operator[](size_t Index)
+		{
+			return(m_InternalArray[Index]);
+		}
+		T const& operator[](size_t Index) const
+		{
+			return(m_InternalArray[Index]);
+		}
+		MBStaticVector& operator=(MBStaticVector const& RightVector)
+		{
+			for (size_t i = 0; i < C; i++)
+			{
+				m_InternalArray[i] = RightVector[i];
+			}
+			return(*this);
+		}
+		MBStaticVector& operator+=(MBStaticVector const& RightVector)
+		{
+			(*this) = (*this) + RightVector;
+			return(*this);
+		}
+		MBStaticVector& operator-=(MBStaticVector const& RighVector)
+		{
+			(*this) = (*this) - RightVector;
+			return(*this);
+		}
+		MBStaticVector friend operator*(MBStaticVector const& LeftVector, MBStaticVector const& RightVector)
+		{
+			MBStaticVector ReturnValue;
+			for (size_t i = 0; i < C; i++)
+			{
+				ReturnvValue.m_InternalArray[i] = LeftVector.m_InternalArray[i] * RightVector.m_InternalArray[i];
+			}
+		}
+		bool friend operator==(MBStaticVector const& LeftVector, MBStaticVector const& RightVector)
+		{
+			bool ReturnValue = true;
+			for (size_t i = 0; i < C; i++)
+			{
+				if (LeftVector.m_InternalArray[i] != RightVector.m_InternalArray[i])
+				{
+					ReturnValue = false;
+					break;
+				}
+			}
+			return(ReturnValue);
+		}
+		MBStaticVector friend operator+(MBStaticVector const& LeftVector, MBStaticVector const& RightVector)
+		{
+			MBStaticVector ReturnValue;
+			for (size_t i = 0; i < C; i++)
+			{
+				ReturnValue[i] = LeftVector[i] + RightVector[i];
+			}
+			return(ReturnValue);
+		}
+		MBStaticVector friend operator-(MBStaticVector const& LeftVector, MBStaticVector const& RightVector)
+		{
+			MBStaticVector ReturnValue;
+			for (size_t i = 0; i < C; i++)
+			{
+				ReturnValue[i] = LeftVector[i] - RightVector[i];
+			}
+			return(ReturnValue);
 		}
 	};
 };
