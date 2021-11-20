@@ -3,24 +3,27 @@
 #include <iostream>
 #include <MBMathTemplateFunctions.h>
 #include <math.h>
+#include <cstdint>
+#include <exception>
+#include <ostream>
 namespace MBMath
 {
-	template<typename T> class MBMatrix;
+	template<typename T> class MBDynamicMatrix;
 
-	template<typename T> MBMatrix<T> operator+(const MBMatrix<T>& Left, const MBMatrix<T>& Right);
-	template<typename T> MBMatrix<T> operator-(const MBMatrix<T>& Left, const MBMatrix<T>& Right);
-	template<typename T> MBMatrix<T> operator*(const MBMatrix<T>& Left, const MBMatrix<T>& Right);
+	template<typename T> MBDynamicMatrix<T> operator+(const MBDynamicMatrix<T>& Left, const MBDynamicMatrix<T>& Right);
+	template<typename T> MBDynamicMatrix<T> operator-(const MBDynamicMatrix<T>& Left, const MBDynamicMatrix<T>& Right);
+	template<typename T> MBDynamicMatrix<T> operator*(const MBDynamicMatrix<T>& Left, const MBDynamicMatrix<T>& Right);
 						
-	template<typename T> MBMatrix<T> operator*(const MBMatrix<T>& Left, long long Right);
-	template<typename T> MBMatrix<T> operator*(long long Left, const MBMatrix<T>& Right);
-	template<typename T> MBMatrix<T> operator*(double Left, const MBMatrix<T>& Right);
-	template<typename T> MBMatrix<T> operator*(const MBMatrix<T> Left, double Right);
+	template<typename T> MBDynamicMatrix<T> operator*(const MBDynamicMatrix<T>& Left, long long Right);
+	template<typename T> MBDynamicMatrix<T> operator*(long long Left, const MBDynamicMatrix<T>& Right);
+	template<typename T> MBDynamicMatrix<T> operator*(double Left, const MBDynamicMatrix<T>& Right);
+	template<typename T> MBDynamicMatrix<T> operator*(const MBDynamicMatrix<T> Left, double Right);
 						
 	//template<typename T> T& operator[](int Row, int Column);
 	template<typename T> class MBMatrixPartialInvertion
 	{
 	public:
-		MBMatrix<T> Matrix;
+		MBDynamicMatrix<T> Matrix;
 		int DeterminantMultiple = 1;
 		MBMatrixPartialInvertion(long long Size) : Matrix{Size}
 		{
@@ -32,19 +35,19 @@ namespace MBMath
 		}
 	};
 	template<typename T>
-	class MBMatrix
+	class MBDynamicMatrix
 	{
 	private:
 		std::vector<std::vector<T>> MatrixData = {};
 	public:
-		friend MBMatrix<T> operator+<>(const MBMatrix<T>& Left, const MBMatrix<T>& Right);
-		friend MBMatrix<T> operator-<>(const MBMatrix<T>& Left, const MBMatrix<T>& Right);
-		friend MBMatrix<T> operator*<>(const MBMatrix<T>& Left, const MBMatrix<T>& Right);
+		friend MBDynamicMatrix<T> operator+<>(const MBDynamicMatrix<T>& Left, const MBDynamicMatrix<T>& Right);
+		friend MBDynamicMatrix<T> operator-<>(const MBDynamicMatrix<T>& Left, const MBDynamicMatrix<T>& Right);
+		friend MBDynamicMatrix<T> operator*<>(const MBDynamicMatrix<T>& Left, const MBDynamicMatrix<T>& Right);
 									
-		friend MBMatrix<T> operator*<>(const MBMatrix<T>& Left, long long Right);
-		friend MBMatrix<T> operator*<>(long long Left, const MBMatrix<T>& Right);
-		friend MBMatrix<T> operator*<>(double Left, const MBMatrix<T>& Right);
-		friend MBMatrix<T> operator*<>(const MBMatrix<T> Left, double Right);
+		friend MBDynamicMatrix<T> operator*<>(const MBDynamicMatrix<T>& Left, long long Right);
+		friend MBDynamicMatrix<T> operator*<>(long long Left, const MBDynamicMatrix<T>& Right);
+		friend MBDynamicMatrix<T> operator*<>(double Left, const MBDynamicMatrix<T>& Right);
+		friend MBDynamicMatrix<T> operator*<>(const MBDynamicMatrix<T> Left, double Right);
 
 		bool ErrorFlag = false;
 		T& operator()(int Row, int Column)
@@ -55,7 +58,7 @@ namespace MBMath
 		{
 			return(MatrixData[Row][Column]);
 		}
-		friend std::ostream& operator<<(std::ostream& os,MBMatrix<T> MatrixToPrint)
+		friend std::ostream& operator<<(std::ostream& os,MBDynamicMatrix<T> MatrixToPrint)
 		{
 			int RowCount = MatrixToPrint.NumberOfRows();
 			int ColumnCount = MatrixToPrint.NumberOfColumns();
@@ -104,7 +107,7 @@ namespace MBMath
 			}
 		}
 		//creates a unit matrix with given side length
-		MBMatrix(long long RowCount)
+		MBDynamicMatrix(long long RowCount)
 		{
 			MatrixData = std::vector<std::vector<T>>(RowCount);
 			for (size_t i = 0; i < RowCount; i++)
@@ -117,9 +120,9 @@ namespace MBMath
 				MatrixData[i][i] = 1;
 			}
 		}
-		MBMatrix<T> GausEliminate(MBMatrixPartialInvertion<T>* InvertedMatrixPointer = nullptr)
+		MBDynamicMatrix<T> GausEliminate(MBMatrixPartialInvertion<T>* InvertedMatrixPointer = nullptr)
 		{
-			MBMatrix<T> MatrixToReturn = (*this);
+			MBDynamicMatrix<T> MatrixToReturn = (*this);
 			long long RowCount = NumberOfRows();
 			//MBMatrix<T> UnitMatrixToTransform;
 			//if (InvertedMatrixPointer != nullptr)
@@ -193,7 +196,7 @@ namespace MBMath
 			else
 			{
 				MBMatrixPartialInvertion<T> PartiallyInvertedMatrix(NumberOfColumns());
-				MBMatrix<T> GaussEliminatedMatrix = GausEliminate(&PartiallyInvertedMatrix);
+				MBDynamicMatrix<T> GaussEliminatedMatrix = GausEliminate(&PartiallyInvertedMatrix);
 				T DeterminantToReturn = 1;
 				long long RowCount = NumberOfRows();
 				for (size_t i = 0; i < RowCount; i++)
@@ -203,11 +206,11 @@ namespace MBMath
 				return(DeterminantToReturn*PartiallyInvertedMatrix.DeterminantMultiple);
 			}
 		}
-		MBMatrix<T> InvertedMatrix()
+		MBDynamicMatrix<T> InvertedMatrix()
 		{
 			long long ColumnCount = NumberOfColumns();
 			long long RowCount = NumberOfRows();
-			MBMatrix<T> MatrixToReturn;
+			MBDynamicMatrix<T> MatrixToReturn;
 			if (ColumnCount != RowCount)
 			{
 				//error, vi returnar matrixen med en error code
@@ -215,7 +218,7 @@ namespace MBMath
 				return(MatrixToReturn);
 			}
 			MBMatrixPartialInvertion<T> PartiallyInvertedMatrix;
-			PartiallyInvertedMatrix.Matrix = MBMatrix<T>(RowCount);
+			PartiallyInvertedMatrix.Matrix = MBDynamicMatrix<T>(RowCount);
 			MatrixToReturn = GausEliminate(&PartiallyInvertedMatrix);
 			T MatrixDeterminant = 1;
 			for (size_t i = 0; i < RowCount; i++)
@@ -235,7 +238,7 @@ namespace MBMath
 			}
 			//nu gör vi nästa steg i eliminationen 
 		}
-		void AppendColumn(MBMatrix<T> ColumnValues)
+		void AppendColumn(MBDynamicMatrix<T> ColumnValues)
 		{
 			if (ColumnValues.NumberOfColumns() != NumberOfRows())
 			{
@@ -302,10 +305,10 @@ namespace MBMath
 				}
 			}
 		}
-		MBMatrix<T> SolveMatrix(MBMatrix<T> VariableValues)
+		MBDynamicMatrix<T> SolveMatrix(MBDynamicMatrix<T> VariableValues)
 		{
 			
-			MBMatrix<T> DataToReturn(1, VariableValues.NumberOfColumns());
+			MBDynamicMatrix<T> DataToReturn(1, VariableValues.NumberOfColumns());
 			if (VariableValues.NumberOfColumns() != NumberOfRows() && VariableValues.NumberOfColumns() != 0)
 			{
 				//error
@@ -314,7 +317,7 @@ namespace MBMath
 			}
 			else
 			{
-				MBMatrix<T> GaussEliminatedMatrix = (*this);
+				MBDynamicMatrix<T> GaussEliminatedMatrix = (*this);
 				long long RowCount = NumberOfRows();
 				long long ColumnCount = NumberOfColumns();
 				GaussEliminatedMatrix.AppendColumn(VariableValues);
@@ -330,9 +333,9 @@ namespace MBMath
 		}
 		//*/
 
-		MBMatrix<T> Transpose()
+		MBDynamicMatrix<T> Transpose()
 		{
-			MBMatrix<T> MatrixToReturn(NumberOfColumns(), NumberOfRows());
+			MBDynamicMatrix<T> MatrixToReturn(NumberOfColumns(), NumberOfRows());
 			long long ColumnCount = NumberOfColumns();
 			long long RowCount = NumberOfRows();
 			for (size_t i = 0; i < ColumnCount; i++)
@@ -344,11 +347,11 @@ namespace MBMath
 			}
 			return(MatrixToReturn);
 		}
-		MBMatrix()
+		MBDynamicMatrix()
 		{
 
 		}
-		MBMatrix(long long NumberOfRows, long long ColumnNumber)
+		MBDynamicMatrix(long long NumberOfRows, long long ColumnNumber)
 		{
 			MatrixData = std::vector<std::vector<T>>(NumberOfRows);
 			for (size_t i = 0; i < MatrixData.size(); i++)
@@ -356,23 +359,23 @@ namespace MBMath
 				MatrixData[i] = std::vector<T>(ColumnNumber);
 			}
 		}
-		~MBMatrix()
+		~MBDynamicMatrix()
 		{
 
 		}
 	};
 	//klass för att kunna representera transformationer i 3D på ett smidigt sätt
 	template<typename T>
-	class MBVector
+	class MBDynamicVector
 	{
 	protected:
-		MBMatrix<T> VectorData = {};
+		MBDynamicMatrix<T> VectorData = {};
 	public:
-		operator MBMatrix<T>()
+		operator MBDynamicMatrix<T>()
 		{
 			return(VectorData);
 		}
-		MBVector<T> operator+(MBVector<T> RightVector)
+		MBDynamicVector<T> operator+(MBDynamicVector<T> RightVector)
 		{
 			int RightColumns = RightVector.VectorData.NumberOfColumns();
 			int LeftColumns = this->VectorData.NumberOfColumns();
@@ -385,7 +388,7 @@ namespace MBMath
 			{
 				MaxColumns = LeftColumns;
 			}
-			MBVector<float> ReturnValue = MBVector<float>(MaxColumns);
+			MBDynamicVector<float> ReturnValue = MBDynamicVector<float>(MaxColumns);
 			for (size_t i = 0; i < RightColumns; i++)
 			{
 				ReturnValue[i] += RightVector[i];
@@ -396,7 +399,7 @@ namespace MBMath
 			}
 			return(ReturnValue);
 		}
-		MBVector<T> operator-(MBVector<T> RightVector)
+		MBDynamicVector<T> operator-(MBDynamicVector<T> RightVector)
 		{
 			int RightColumns = RightVector.VectorData.NumberOfColumns();
 			int LeftColumns = this->VectorData.NumberOfColumns();
@@ -409,7 +412,7 @@ namespace MBMath
 			{
 				MaxColumns = LeftColumns;
 			}
-			MBVector<float> ReturnValue = MBVector<float>(MaxColumns);
+			MBDynamicVector<float> ReturnValue = MBDynamicVector<float>(MaxColumns);
 			for (size_t i = 0; i < RightColumns; i++)
 			{
 				ReturnValue[i] -= RightVector[i];
@@ -420,11 +423,11 @@ namespace MBMath
 			}
 			return(ReturnValue);
 		}
-		friend std::ostream& operator<<(std::ostream& os, MBVector<T> VectorToPrint)
+		friend std::ostream& operator<<(std::ostream& os, MBDynamicVector<T> VectorToPrint)
 		{			
 			return (os<<VectorToPrint.VectorData);
 		}
-		friend MBVector<T> operator*(MBMatrix<T> LeftMatrix, MBVector<T> RightVector)
+		friend MBDynamicVector<T> operator*(MBDynamicMatrix<T> LeftMatrix, MBDynamicVector<T> RightVector)
 		{
 			if ((LeftMatrix.NumberOfColumns()!= LeftMatrix.NumberOfRows()) || (LeftMatrix.NumberOfColumns() != RightVector.VectorData.NumberOfColumns()))
 			{
@@ -436,7 +439,7 @@ namespace MBMath
 				return(RightVector);
 			}
 		}
-		friend MBVector<T> operator*(MBVector<T> LeftVector, MBMatrix<T> RightMatrix)
+		friend MBDynamicVector<T> operator*(MBDynamicVector<T> LeftVector, MBDynamicMatrix<T> RightMatrix)
 		{
 			if ((RightMatrix.NumberOfColumns() != RightMatrix.NumberOfRows()) || (RightMatrix.NumberOfColumns() != LeftVector.VectorData.NumberOfColumns()))
 			{
@@ -456,49 +459,49 @@ namespace MBMath
 		{
 			return(VectorData(0, Index));
 		}
-		friend	MBVector<T> operator*(MBVector<T> LeftVector, T RightScalar)
+		friend	MBDynamicVector<T> operator*(MBDynamicVector<T> LeftVector, T RightScalar)
 		{
 			int ColumnCount = LeftVector.VectorData.NumberOfColumns();
-			MBVector<T> ReturnValue = MBVector<T>(ColumnCount);
+			MBDynamicVector<T> ReturnValue = MBDynamicVector<T>(ColumnCount);
 			for (size_t i = 0; i < ColumnCount; i++)
 			{
 				ReturnValue[i] = LeftVector[i] * RightScalar;
 			}
 			return(ReturnValue);
 		}
-		friend	MBVector<T> operator*(T LeftScalar, MBVector<T> RightVector)
+		friend	MBDynamicVector<T> operator*(T LeftScalar, MBDynamicVector<T> RightVector)
 		{
 			int ColumnCount = RightVector.VectorData.NumberOfColumns();
-			MBVector<T> ReturnValue = MBVector<T>(ColumnCount);
+			MBDynamicVector<T> ReturnValue = MBDynamicVector<T>(ColumnCount);
 			for (size_t i = 0; i < ColumnCount; i++)
 			{
 				ReturnValue[i] = RightVector[i] * LeftScalar;
 			}
 			return(ReturnValue);
 		}
-		MBVector(long long NumberOfDimensions) : VectorData(1, NumberOfDimensions)
+		MBDynamicVector(long long NumberOfDimensions) : VectorData(1, NumberOfDimensions)
 		{
 			for (size_t i = 0; i < NumberOfDimensions; i++)
 			{
 				VectorData(0, i) = 0;
 			}
 		}
-		MBVector()
+		MBDynamicVector()
 		{
 
 		}
-		MBVector(int NumberOfElements)
+		MBDynamicVector(int NumberOfElements)
 		{
-			VectorData = MBMatrix<T>(1, NumberOfElements);
+			VectorData = MBDynamicMatrix<T>(1, NumberOfElements);
 		}
 		//eftersom vi vill kunna rotera alla typer av koordinater men inte nödvändigtvis returna samma typ av värden om vi 
 		//TODO Gör en generell rotationsmatrix funktion, just nu har jag däremot inte riktigt matten för det
 		//void Rotate(double AngleToRotate, MBVector<T> AxisToRotateFrom)
 		//{
-		MBVector Normalized()
+		MBDynamicVector Normalized()
 		{
 			long long ColumnCount = VectorData.NumberOfColumns();
-			MBVector<T> ReturnValue(ColumnCount);
+			MBDynamicVector<T> ReturnValue(ColumnCount);
 			T NormOfVector = 0;
 			//TODO för att faktiskt få en helt generell metod för att räkna avstånd behöver vi en generell abs funktion och en generell rotfunktion
 			for (size_t i = 0; i < ColumnCount; i++)
@@ -521,7 +524,7 @@ namespace MBMath
 				return((*this));
 			}
 		}
-		T DotProduct(MBVector RightVector)
+		T DotProduct(MBDynamicVector RightVector)
 		{
 			T ReturnValue = 0;
 			long long ColumnCount = VectorData.NumberOfColumns();
@@ -533,13 +536,13 @@ namespace MBMath
 		}
 		//}
 	};
-	template<typename T> class MBVector3 : public MBVector<T>
+	template<typename T> class MBDynamicVector3 : public MBDynamicVector<T>
 	{
 	public:
-		MBVector3<T> CrossProduct(MBVector3 RightVector)
+		MBDynamicVector3<T> CrossProduct(MBDynamicVector3 RightVector)
 		{
-			MBVector3 ReturnValue(0,0,0);
-			MBMatrix<T> TempMatrix(2);
+			MBDynamicVector3 ReturnValue(0,0,0);
+			MBDynamicMatrix<T> TempMatrix(2);
 			TempMatrix(0, 0) = this->VectorData(0, 1);
 			TempMatrix(1, 0) = this->VectorData(0, 2);
 			TempMatrix(0, 1) = RightVector.VectorData(0, 1);
@@ -557,20 +560,20 @@ namespace MBMath
 			ReturnValue[2] = TempMatrix.Determinant();
 			return(ReturnValue);
 		}
-		MBVector3 ZAxis()
+		//MBVector3 ZAxis()
+		//{
+		//	return(MBVector3(0, 0, 1));
+		//}
+		MBDynamicVector3() : MBDynamicVector<T>(3)
 		{
-			return(MBVector3(0, 0, 1));
+			this->VectorData = MBDynamicMatrix<T>(1, 3);
 		}
-		MBVector3() : MBVector<T>(3)
-		{
-			this->VectorData = MBMatrix<T>(1, 3);
-		}
-		static MBMatrix<T> GetRotationMatrix(double AngleToRotate, MBVector<T> AxisToRotateFrom)
+		static MBDynamicMatrix<T> GetRotationMatrix(double AngleToRotate, MBDynamicVector<T> AxisToRotateFrom)
 		{
 			AngleToRotate *= (double)3.141592653589793238 / 180;
 			AxisToRotateFrom = AxisToRotateFrom.Normalized();
 			long long ColumnCount = 3;
-			MBVector3 e1;
+			MBDynamicVector3 e1;
 			bool e1Finished = false;
 			for (size_t i = 0; i < ColumnCount; i++)
 			{
@@ -587,12 +590,12 @@ namespace MBMath
 				e1[1] = AxisToRotateFrom[0];
 			}
 			e1 = e1.Normalized();
-			MBVector3<T> e2 = MBVector3(AxisToRotateFrom).CrossProduct(e1);
+			MBDynamicVector3<T> e2 = MBDynamicVector3(AxisToRotateFrom).CrossProduct(e1);
 			//T Test = e1.DotProduct(AxisToRotateFrom);
 			//T Test2 = e1.DotProduct(e2);
 			//T Test3 = e2.DotProduct(AxisToRotateFrom);
 			//nu vill vi konstruera e1 i vår nya bas, den har enbart egenskapen att dens skalar produkt med vektor ar 0.
-			MBMatrix<T> BaseMatrix(3);
+			MBDynamicMatrix<T> BaseMatrix(3);
 			BaseMatrix(0, 0) = e1[0];
 			BaseMatrix(1, 0) = e1[1];
 			BaseMatrix(2, 0) = e1[2];
@@ -602,7 +605,7 @@ namespace MBMath
 			BaseMatrix(0, 1) = e2[0];
 			BaseMatrix(1, 1) = e2[1];
 			BaseMatrix(2, 1) = e2[2];
-			MBMatrix<T> RegularRotation(3);
+			MBDynamicMatrix<T> RegularRotation(3);
 			RegularRotation(0, 0) = std::cos(AngleToRotate);
 			RegularRotation(1, 1) = std::cos(AngleToRotate);
 			RegularRotation(0, 1) = -std::sin(AngleToRotate);
@@ -610,20 +613,20 @@ namespace MBMath
 			//std::cout << BaseMatrix << std::endl;
 			//std::cout << BaseMatrix.Transpose() << std::endl;
 			//std::cout << RegularRotation << std::endl;
-			MBMatrix<T> RotationMatrix = BaseMatrix * RegularRotation * BaseMatrix.Transpose();
+			MBDynamicMatrix<T> RotationMatrix = BaseMatrix * RegularRotation * BaseMatrix.Transpose();
 			return(RotationMatrix);
 		}
 		//TODO implementera RotationFromVector
-		static MBVector3<T> RotationFromVector(MBVector3<T> CurrentVector, MBVector3<T> OrignalVector)
-		{
-			return(MBVector3<T>(0, 0, 0));
-		}
-		void Rotate(double AngleToRotate, MBVector<T> AxisToRotateFrom)
+		//static MBVector3<T> RotationFromVector(MBVector3<T> CurrentVector, MBVector3<T> OrignalVector)
+		//{
+		//	return(MBVector3<T>(0, 0, 0));
+		//}
+		void Rotate(double AngleToRotate, MBDynamicVector<T> AxisToRotateFrom)
 		{
 			AngleToRotate *= (double)3.141592653589793238 / 180;
 			AxisToRotateFrom = AxisToRotateFrom.Normalized();
 			long long ColumnCount = this->VectorData.NumberOfColumns();
-			MBVector3 e1;
+			MBDynamicVector3 e1;
 			bool e1Finished = false;
 			for (size_t i = 0; i < ColumnCount; i++)
 			{
@@ -640,12 +643,12 @@ namespace MBMath
 				e1[1] = AxisToRotateFrom[0];
 			}
 			e1 = e1.Normalized();
-			MBVector3<T> e2 = MBVector3(AxisToRotateFrom).CrossProduct(e1);
+			MBDynamicVector3<T> e2 = MBDynamicVector3(AxisToRotateFrom).CrossProduct(e1);
 			//T Test = e1.DotProduct(AxisToRotateFrom);
 			//T Test2 = e1.DotProduct(e2);
 			//T Test3 = e2.DotProduct(AxisToRotateFrom);
 			//nu vill vi konstruera e1 i vår nya bas, den har enbart egenskapen att dens skalar produkt med vektor ar 0.
-			MBMatrix<T> BaseMatrix(3);
+			MBDynamicMatrix<T> BaseMatrix(3);
 			BaseMatrix(0, 0) = e1[0];
 			BaseMatrix(1, 0) = e1[1];
 			BaseMatrix(2, 0) = e1[2];
@@ -655,7 +658,7 @@ namespace MBMath
 			BaseMatrix(0, 1) = e2[0];
 			BaseMatrix(1, 1) = e2[1];
 			BaseMatrix(2, 1) = e2[2];
-			MBMatrix<T> RegularRotation(3);
+			MBDynamicMatrix<T> RegularRotation(3);
 			RegularRotation(0, 0) = std::cos(AngleToRotate);
 			RegularRotation(1, 1) = std::cos(AngleToRotate);
 			RegularRotation(0, 1) = -std::sin(AngleToRotate);
@@ -663,22 +666,22 @@ namespace MBMath
 			//std::cout << BaseMatrix << std::endl;
 			//std::cout << BaseMatrix.Transpose() << std::endl;
 			//std::cout << RegularRotation << std::endl;
-			MBMatrix<T> RotationMatrix = BaseMatrix * RegularRotation * BaseMatrix.Transpose();
+			MBDynamicMatrix<T> RotationMatrix = BaseMatrix * RegularRotation * BaseMatrix.Transpose();
 			//std::cout << RotationMatrix << std::endl;
 			this->VectorData = (RotationMatrix * this->VectorData.Transpose()).Transpose();
 		}
-		MBVector3<T> LinearInterpolation(MBVector3<T> EndVector,float NormalizedTime)
+		MBDynamicVector3<T> LinearInterpolation(MBDynamicVector3<T> EndVector,float NormalizedTime)
 		{
 			return((1 - NormalizedTime) * (*this) + NormalizedTime * EndVector);
 		}
-		MBVector3(T x , T y, T z)
+		MBDynamicVector3(T x , T y, T z)
 		{
-			this->VectorData = MBMatrix<T>(1, 3);
+			this->VectorData = MBDynamicMatrix<T>(1, 3);
 			this->VectorData(0, 0) = x;
 			this->VectorData(0, 1) = y;
 			this->VectorData(0, 2) = z;
 		}
-		MBVector3(MBMatrix<T> MatrixToConvert)
+		MBDynamicVector3(MBDynamicMatrix<T> MatrixToConvert)
 		{
 			if (MatrixToConvert.NumberOfColumns() == 3)
 			{
@@ -697,7 +700,7 @@ namespace MBMath
 				//error handle eller default, vem vet
 			}
 		}
-		MBVector3(MBVector<T> VectorToConvert) : MBVector<T>(3)
+		MBDynamicVector3(MBDynamicVector<T> VectorToConvert) : MBDynamicVector<T>(3)
 		{
 			(*this)[0] = VectorToConvert[0];
 			(*this)[1] = VectorToConvert[1];
@@ -705,13 +708,13 @@ namespace MBMath
 		}
 	};
 	template<typename T>
-	class MBMatrix4
+	class MBDynamicMatrix4
 	{
 	private:
-		MBMatrix<T> MatrixData = MBMatrix<T>(4);
+		MBDynamicMatrix<T> MatrixData = MBDynamicMatrix<T>(4);
 		std::vector<T> ContinousData = std::vector<T>(16);
 	public:
-		MBMath::MBMatrix<T> GetMatrixData()
+		MBMath::MBDynamicMatrix<T> GetMatrixData()
 		{
 			return(MatrixData);
 		}
@@ -730,7 +733,7 @@ namespace MBMath
 			std::cout << "}";
 			std::cout<<std::endl;
 		}
-		friend std::ostream& operator<<(std::ostream& os, MBMatrix4<T> MatrixToPrint)
+		friend std::ostream& operator<<(std::ostream& os, MBDynamicMatrix4<T> MatrixToPrint)
 		{
 			return (os << MatrixToPrint.MatrixData);
 		}
@@ -746,13 +749,13 @@ namespace MBMath
 		{
 			return(MatrixData(DiagonalIndex, DiagonalIndex));
 		}
-		friend MBMatrix4<T> operator*(const MBMatrix4<T>& Left, const MBMatrix4<T>& Right)
+		friend MBDynamicMatrix4<T> operator*(const MBDynamicMatrix4<T>& Left, const MBDynamicMatrix4<T>& Right)
 		{
 			//nu gör vi matris multiplikation;
 			long long NumberOfRows = 4;
 			long long NumberOfColumns = 4;
 			long long InnerIterations = 4;
-			MBMatrix4<T> MatrixToReturn = MBMatrix4<T>();
+			MBDynamicMatrix4<T> MatrixToReturn = MBDynamicMatrix4<T>();
 			for (size_t CurrentRow = 0; CurrentRow < NumberOfRows; CurrentRow++)
 			{
 				for (size_t CurrentColumn = 0; CurrentColumn < NumberOfColumns; CurrentColumn++)
@@ -768,7 +771,7 @@ namespace MBMath
 			}
 			return(MatrixToReturn);
 		}
-		friend MBVector3<T> operator*(MBMatrix4<T> LeftMatrix, MBVector3<T> RightVector)
+		friend MBDynamicVector3<T> operator*(MBDynamicMatrix4<T> LeftMatrix, MBDynamicVector3<T> RightVector)
 		{
 			MBMatrix4 NewRightMatrix(RightVector);
 			NewRightMatrix = LeftMatrix * NewRightMatrix;
@@ -788,15 +791,15 @@ namespace MBMath
 			}
 			return(&ContinousData[0]);
 		}
-		MBMatrix4(MBVector3<T> Vector)
+		MBDynamicMatrix4(MBDynamicVector3<T> Vector)
 		{
 			(*this)[0] = Vector[0];
 			(*this)[1] = Vector[1];
 			(*this)[2] = Vector[2];
 			(*this)[3] = 1;
 		}
-		MBMatrix4() {};
-		MBMatrix4(MBMatrix<T> MatrixToCopy)
+		MBDynamicMatrix4() {};
+		MBDynamicMatrix4(MBDynamicMatrix<T> MatrixToCopy)
 		{
 			int RowCount = MatrixToCopy.NumberOfRows();
 			int ColumnCount = MatrixToCopy.NumberOfColumns();
@@ -816,284 +819,37 @@ namespace MBMath
 			}
 		}
 	};
-	template<typename T>
-	class Base
-	{
-	private:
-		MBMath::MBMatrix<T> BaseData;
-	public:
-		T& operator[](long long Index)
-		{
-			return(BaseData	(0, Index));
-		}
-		MBMatrix<T> GetBaseChangeMatrix(Base BaseToChangeTo)
-		{
 
-		}
-		MBVector<T> GetVectorCoordinates(MBVector<T> VectorDoGetCoordinatesFrom)
-		{
-
-		}
-	};
-	template <typename T>
-	class Quaternion
-	{
-	private:
-	public:
-		T a = 0;
-		T i = 0;
-		T j = 0;
-		T k = 0;
-		friend std::ostream& operator<<(std::ostream& os, Quaternion<T> QuaternionToPrint)
-		{
-			os << QuaternionToPrint.a << " " << QuaternionToPrint.i << " " << QuaternionToPrint.j << " " << QuaternionToPrint.k;
-			return(os);
-		}
-		Quaternion<T>& operator+=(const Quaternion<T>& RightQuaternion)
-		{
-			this->a += RightQuaternion.a;
-			this->i += RightQuaternion.i;
-			this->j += RightQuaternion.j;
-			this->k += RightQuaternion.k;
-			return(*this);
-		}
-		Quaternion<T>& operator-=(const Quaternion<T>& RightQuaternion)
-		{
-			this->a -= RightQuaternion.a;
-			this->i -= RightQuaternion.i;
-			this->j -= RightQuaternion.j;
-			this->k -= RightQuaternion.k;
-			return(*this);
-		}
-		Quaternion<T>& operator*=(const Quaternion<T>& RightQuaternion)
-		{
-			MBVector3<T> ThisVector = MBVector3<T>(this->i, this->j, this->k);
-			MBVector3<T> RightVector = MBVector3<T>(RightQuaternion.i, RightQuaternion.j, RightQuaternion.k);
-			MBVector3<T> NewVector = this->a*RightVector+RightQuaternion.a*ThisVector+ThisVector.CrossProduct(RightVector);
-			this->a = this->a * RightQuaternion.a - ThisVector.DotProduct(RightVector);
-			this->i = NewVector[0];
-			this->j = NewVector[1];
-			this->k = NewVector[2];
-			return(*this);
-		}
-		Quaternion<T>& operator*=(const T& RightScalar)
-		{
-			this->a *= RightScalar;
-			this->i *= RightScalar;
-			this->j *= RightScalar;
-			this->k *= RightScalar;
-			return(*this);
-		}
-		Quaternion<T>& operator/=(const T& RightScalar)
-		{
-			this->a /= RightScalar;
-			this->i /= RightScalar;
-			this->j /= RightScalar;
-			this->k /= RightScalar;
-			return(*this);
-		}
-		friend Quaternion<T> operator-(const Quaternion<T>& LeftQuaternion ,const Quaternion<T>& RightQuaternion)
-		{
-			Quaternion<T> Result(LeftQuaternion);
-			Result -= RightQuaternion;
-			return(Result);
-		}
-		friend Quaternion<T> operator+(const Quaternion<T>& LeftQuaternion, const Quaternion<T>& RightQuaternion)
-		{
-			Quaternion<T> Result(LeftQuaternion);
-			Result += RightQuaternion;
-			return(Result);
-		}
-		friend Quaternion<T> operator*(const Quaternion<T>& LeftQuaternion, const T RightScalar)
-		{
-			Quaternion<T> Result(LeftQuaternion);
-			Result *= RightScalar;
-			return(Result);
-		}
-		friend Quaternion<T> operator*(const T& LeftScalar, const Quaternion<T>& RightQuaternion)
-		{
-			Quaternion<T> Result(RightQuaternion);
-			Result *= LeftScalar;
-			return(Result);
-		}
-		friend Quaternion<T> operator/(const Quaternion<T>& LeftQuaternion, const T RightScalar)
-		{
-			Quaternion<T> Result(LeftQuaternion);
-			Result /= RightScalar;
-			return(Result);
-		}
-		friend Quaternion<T> operator*(const Quaternion<T>& LeftQuaternion,const Quaternion<T>& RightQuaternion)
-		{
-			Quaternion<T> Result(LeftQuaternion);
-			Result *= RightQuaternion;
-			return(Result);
-		}
-		Quaternion(T NewA, T NewI, T NewJ, T NewK)
-		{
-			this->a = NewA;
-			this->i = NewI;
-			this->j = NewJ;
-			this->k = NewK;
-		}
-		Quaternion(float RotationAngle, MBVector3<T> RotationVector)
-		{
-			//omvandlar rotationen från euler till radianer
-			RotationAngle = RotationAngle * 3.1415926535 / 180;
-			RotationVector = RotationVector.Normalized();
-			RotationVector = RotationVector * std::sin(RotationAngle / 2);
-			this->a = std::cos(RotationAngle/2);
-			this->i = RotationVector[0];
-			this->j = RotationVector[1];
-			this->k = RotationVector[2];
-		}
-		Quaternion()
-		{
-
-		}
-		MBVector3<T> RotateVector(MBVector3<T> VectorToRotate)
-		{
-			Quaternion<T> NormalizedQuaternion = (*this);
-			NormalizedQuaternion.Normalize();
-			Quaternion<T> InvertedQuaternion = NormalizedQuaternion;
-			InvertedQuaternion.Invert();
-			Quaternion<T> VectorQuaternion = Quaternion<T>(0, VectorToRotate[0], VectorToRotate[1], VectorToRotate[2]);
-			VectorQuaternion = NormalizedQuaternion*VectorQuaternion * InvertedQuaternion;
-			return(MBVector3<T>(VectorQuaternion.i, VectorQuaternion.j, VectorQuaternion.k));
-		}
-		MBMatrix<T> GetRotationMatrix()
-		{
-			MBMatrix<T> ReturnValue = MBMatrix<T>(3);
-			//eventeullt normaliserar vi inna, har ingen sån, men antar i alla fall att 
-			ReturnValue(0, 0) = 1 - 2 * (j * j + k * k);
-			ReturnValue(0, 1) = 2 * (i * j - k * a);
-			ReturnValue(0, 2) = 2 * (i * k + j * a);
-			ReturnValue(1, 0) = 2 * (i * j + k * a);
-			ReturnValue(1, 1) =1- 2 * (i * i + k * k);
-			ReturnValue(1, 2) =2 * (j * k - i * a);
-			ReturnValue(2, 0) =2 * (i * k - j * a);
-			ReturnValue(2, 1) =2 * (j * k + i * a);
-			ReturnValue(2, 2) =1-2 * (i * i + j * j);
-			return(ReturnValue);
-		}
-		/* snodd wikipedia kod
-		Quaternion slerp(Quaternion v0, Quaternion v1, double t) {
-    // Only unit quaternions are valid rotations.
-    // Normalize to avoid undefined behavior.
-    v0.normalize();
-    v1.normalize();
-
-    // Compute the cosine of the angle between the two vectors.
-    double dot = dot_product(v0, v1);
-
-    // If the dot product is negative, slerp won't take
-    // the shorter path. Note that v1 and -v1 are equivalent when
-    // the negation is applied to all four components. Fix by 
-    // reversing one quaternion.
-    if (dot < 0.0f) {
-        v1 = -v1;
-        dot = -dot;
-    }
-
-    const double DOT_THRESHOLD = 0.9995;
-    if (dot > DOT_THRESHOLD) {
-        // If the inputs are too close for comfort, linearly interpolate
-        // and normalize the result.
-
-        Quaternion result = v0 + t*(v1 - v0);
-        result.normalize();
-        return result;
-    }
-
-    // Since dot is in range [0, DOT_THRESHOLD], acos is safe
-    double theta_0 = acos(dot);        // theta_0 = angle between input vectors
-    double theta = theta_0*t;          // theta = angle between v0 and result
-    double sin_theta = sin(theta);     // compute this value only once
-    double sin_theta_0 = sin(theta_0); // compute this value only once
-
-    double s0 = cos(theta) - dot * sin_theta / sin_theta_0;  // == sin(theta_0 - theta) / sin(theta_0)
-    double s1 = sin_theta / sin_theta_0;
-
-    return (s0 * v0) + (s1 * v1);
-}
-		*/
-
-		Quaternion<T> Slerp(Quaternion<T> EndQuaternion, float	NormalizedTime)
-		{
-			//förutsätter att quaternionerna är normaliserade
-			EndQuaternion.Normalize();
-			Quaternion<T> Copy = *this;
-			Copy.Normalize();
-			MBVector<T> v0(4);
-			v0[0] = Copy.a;
-			v0[1] = Copy.i;
-			v0[2] = Copy.j;
-			v0[3] = Copy.k;
-			MBVector<T> v1(4);
-			v1[0] = EndQuaternion.a;
-			v1[1] = EndQuaternion.i;
-			v1[2] = EndQuaternion.j;
-			v1[3] = EndQuaternion.k;
-
-			// Compute the cosine of the angle between the two vectors.
-			double dot = v0.DotProduct(v1);
-
-			// If the dot product is negative, slerp won't take
-			// the shorter path. Note that v1 and -v1 are equivalent when
-			// the negation is applied to all four components. Fix by 
-			// reversing one quaternion.
-			if (dot < 0.0f) {
-				v1 = -1*v1;
-				dot = -dot;
-			}
-
-			const double DOT_THRESHOLD = 0.9995;
-			if (dot > DOT_THRESHOLD) {
-				// If the inputs are too close for comfort, linearly interpolate
-				// and normalize the result.
-
-				MBVector<T> result = v0 + (NormalizedTime * (v1 - v0));
-				result = result.Normalized();
-				return(Quaternion(result[0],result[1],result[2],result[3]));
-			}
-
-			// Since dot is in range [0, DOT_THRESHOLD], acos is safe
-			double theta_0 = std::acos(dot);        // theta_0 = angle between input vectors
-			double theta = theta_0 * NormalizedTime;          // theta = angle between v0 and result
-			double sin_theta = std::sin(theta);     // compute this value only once
-			double sin_theta_0 = std::sin(theta_0); // compute this value only once
-
-			double s0 = std::cos(theta) - dot * sin_theta / sin_theta_0;  // == sin(theta_0 - theta) / sin(theta_0)
-			double s1 = sin_theta / sin_theta_0;
-			MBVector<T> ResultVector = (s0 * v0) + (s1 * v1);
-			return(Quaternion<T>(ResultVector[0],ResultVector[1],ResultVector[2],ResultVector[3]));
-		}
-		void Normalize()
-		{
-			T Magnitude = Sqrt<T>(a * a + i * i + j * j + k * k);
-			this->a /= Magnitude;
-			this->i /= Magnitude;
-			this->j /= Magnitude;
-			this->k /= Magnitude;
-		}
-		void Invert()
-		{
-			T Denominator = a * a + i * i + j * j + k * k;
-			this->a = a / Denominator;
-			this->i = -i / Denominator;
-			this->j = -j / Denominator;
-			this->k = -k / Denominator;
-		}
-	};
-
-
+	
+	template<typename T,size_t C>
+	class MBStaticVector;
+	template<typename N, size_t, size_t>
+	class MBStaticMatrix;
+	template<typename N, size_t I, size_t K>
+	MBStaticVector<N, I> operator*(MBStaticMatrix<N, I, K> const& LeftMatrix, MBStaticVector<N, I> const& RightVector);
 	template <typename T,size_t C> 
 	class MBStaticVector
 	{
-	private:
+	protected:
 		T m_InternalArray[C];
+		template<typename N,size_t X,size_t Y>
+		friend class MBStaticMatrix;
+		template<typename Z,size_t I,size_t K>
+		friend MBStaticVector<Z, I> operator*(MBStaticMatrix<Z,I,K> const& LeftMatrix, MBStaticVector<Z, I> const& RightVector);
+		void p_ZeroValues()
+		{
+			for(size_t i = 0; i < C;i++)
+			{
+				m_InternalArray[i] = 0;
+			}	
+		}
 	public:
-
-		//MBStaticVector(T const& ... args)
+		MBStaticVector()
+		{
+			p_ZeroValues();
+		}
+		//template<typename ...I>
+		//MBStaticVector(I ... args)
 		//{
 		//	m_InternalArray = { args... };
 		//}
@@ -1123,13 +879,32 @@ namespace MBMath
 			(*this) = (*this) - RightVector;
 			return(*this);
 		}
+		MBStaticVector& operator*=(T const& Scalar)
+		{
+			for (size_t i = 0; i < C; i++)
+			{
+				m_InternalArray[i] *= Scalar;
+			}
+			return(*this);
+		}
+		MBStaticVector friend operator*(MBStaticVector LeftVector, T const& RightScalar)
+		{
+			LeftVector *= RightScalar;
+			return(LeftVector);
+		}
+		MBStaticVector friend operator*(T const& LeftScalar,MBStaticVector RightVector)
+		{
+			RightVector *= LeftScalar;
+			return(RightVector);
+		}
 		MBStaticVector friend operator*(MBStaticVector const& LeftVector, MBStaticVector const& RightVector)
 		{
 			MBStaticVector ReturnValue;
 			for (size_t i = 0; i < C; i++)
 			{
-				ReturnvValue.m_InternalArray[i] = LeftVector.m_InternalArray[i] * RightVector.m_InternalArray[i];
+				ReturnValue.m_InternalArray[i] = LeftVector.m_InternalArray[i] * RightVector.m_InternalArray[i];
 			}
+			return(ReturnValue);
 		}
 		bool friend operator==(MBStaticVector const& LeftVector, MBStaticVector const& RightVector)
 		{
@@ -1162,15 +937,850 @@ namespace MBMath
 			}
 			return(ReturnValue);
 		}
+		friend std::ostream& operator<<(std::ostream& Out, const MBStaticVector& VectorToPrint)
+		{
+			//std::cout << "Kommer hit" << std::endl;
+			for (size_t j = 0; j < C; j++)
+			{
+				Out << VectorToPrint.m_InternalArray[j] << " ";
+			}
+			return(Out);
+		}
+		MBStaticVector<T,C> Normalized() const
+		{
+			MBStaticVector<T,C> ReturnValue = *this;
+			T Magnitude = 0;
+			for (size_t i = 0; i < C; i++)
+			{
+				Magnitude += m_InternalArray[i] *m_InternalArray[i];
+			}
+			Magnitude = Sqrt(Magnitude);
+			if (Magnitude == 0)
+			{
+				return(ReturnValue);
+			}
+			for (size_t i = 0; i < C; i++)
+			{
+				ReturnValue.m_InternalArray[i] /= Magnitude;
+			}
+			return(ReturnValue);
+		}
+
+		template <typename U,size_t S>
+		friend U DotProduct(MBStaticVector<U,S> const& LeftVector, MBStaticVector<U,S> const& RightVector);
 	};
+
+	template <typename U,size_t S>
+	U DotProduct(MBStaticVector<U,S> const& LeftVector, MBStaticVector<U,S> const& RightVector)
+	{
+		U ReturnValue;
+		for (size_t i = 0; i < S; i++)
+		{
+			ReturnValue += LeftVector.m_InternalArray[i] * RightVector.m_InternalArray[i];
+		}
+		return(ReturnValue);
+	}
+
+	template<typename T>
+	class MBStaticVector3 : public MBStaticVector<T, 3>
+	{
+	private:
+
+	public:
+		MBStaticVector3()
+		{
+
+		}
+		MBStaticVector3(MBStaticVector<T,3>&& VectorToSteal)
+		{
+			m_InternalArray[0] = std::move(VectorToSteal[0]);
+			m_InternalArray[1] = std::move(VectorToSteal[1]);
+			m_InternalArray[2] = std::move(VectorToSteal[2]);
+		}
+		T& operator[](size_t Index)
+		{
+			return(m_InternalArray[Index]);
+		}
+		T const& operator[](size_t Index) const
+		{
+			return(m_InternalArray[Index]);
+		}
+		MBStaticVector3(T X,T Y,T Z)
+		{
+			m_InternalArray[0] = std::move(X);
+			m_InternalArray[1] = std::move(Y);
+			m_InternalArray[2] = std::move(Z);
+		}
+		void Rotate(double AngleToRotate, MBStaticVector3<T> const& SuppliedAxis)
+		{
+			//AngleToRotate *= (double)3.141592653589793238 / 180;
+			//MBStaticVector3<T> AxisToRotateFrom = SuppliedAxis.Normalized();
+			//MBStaticVector3<T> e1;
+			//bool e1Finished = false;
+			////varför behövs detta?
+			//for (size_t i = 0; i < 3; i++)
+			//{
+			//	if (AxisToRotateFrom[i] == 0)
+			//	{
+			//		e1[i] = 1;
+			//		e1Finished = true;
+			//		break;
+			//	}
+			//}
+			//if (!e1Finished)
+			//{
+			//	e1[0] = -AxisToRotateFrom[1];
+			//	e1[1] = AxisToRotateFrom[0];
+			//}
+			////
+			//e1 = e1.Normalized();
+			//MBStaticVector3<T> e2 = CrossProduct(AxisToRotateFrom,e1);
+			//MBStaticMatrix<T,3,3> BaseMatrix;
+			//BaseMatrix(0, 0) = e1[0];
+			//BaseMatrix(1, 0) = e1[1];
+			//BaseMatrix(2, 0) = e1[2];
+			//BaseMatrix(0, 2) = AxisToRotateFrom[0];
+			//BaseMatrix(1, 2) = AxisToRotateFrom[1];
+			//BaseMatrix(2, 2) = AxisToRotateFrom[2];
+			//BaseMatrix(0, 1) = e2[0];
+			//BaseMatrix(1, 1) = e2[1];
+			//BaseMatrix(2, 1) = e2[2];
+			//MBStaticMatrix<T,3,3> RegularRotation;
+			//RegularRotation(0, 0) = std::cos(AngleToRotate);
+			//RegularRotation(1, 1) = std::cos(AngleToRotate);
+			//RegularRotation(0, 1) = -std::sin(AngleToRotate);
+			//RegularRotation(1, 0) = std::sin(AngleToRotate);
+			//RegularRotation(2, 2) = 1;
+			MBStaticMatrix<T, 3, 3> RotationMatrix = GetRotationMatrix(AngleToRotate, SuppliedAxis);
+			*this = RotationMatrix * (*this);
+		}
+
+		template <typename U>
+		friend MBStaticVector3<U> LinearInterpolation(MBStaticVector3<U> const& StartVector, MBStaticVector3<U> const& EndVector, double NormalizedTime);
+		template <typename U>
+		friend MBStaticVector3<U> CrossProduct(MBStaticVector3<U> const& LeftVector, MBStaticVector3<U> const& RightVector);
+
+
+	};
+	template<typename T>
+	MBStaticVector3<T> CrossProduct(MBStaticVector3<T> const& LeftVector, MBStaticVector3<T> const& RightVector)
+	{
+		MBStaticVector3<T> ReturnValue;
+		ReturnValue.m_InternalArray[0] = LeftVector[1] * RightVector[2] - LeftVector[2] * RightVector[1];
+		ReturnValue.m_InternalArray[1] = LeftVector[2] * RightVector[0] - LeftVector[0] * RightVector[2];
+		ReturnValue.m_InternalArray[2] = LeftVector[0] * RightVector[1] - LeftVector[1] * RightVector[0];
+		return(ReturnValue);
+	}
+	template <typename U>
+	MBStaticVector3<U> LinearInterpolation(MBStaticVector3<U> const& StartVector, MBStaticVector3<U> const& EndVector, double NormalizedTime)
+	{
+		return(((1 - NormalizedTime) * StartVector) + (NormalizedTime * EndVector));
+	}
+	constexpr bool MBSTATIC_MATRIX_ERRORCHECK = true;
+	template <typename T, size_t I, size_t K>
+	class MBStaticMatrix
+	{
+	protected:
+		T m_InternalArray[I*K];
+		T static p_GetDotProduct(const T* LeftArray, size_t LeftArrayElementOffset, const T* RightArray, size_t RightArrayOffset, size_t NumberOfElements)
+		{
+			T ReturnValue = 0;
+			for (size_t i = 0; i < NumberOfElements; i++)
+			{
+				ReturnValue += (LeftArray[i * LeftArrayElementOffset]) * (RightArray[i * RightArrayOffset]);
+			}
+			return(ReturnValue);
+		}
+
+		//Kanske den absolut mest fula hacket jag gjort på länge, men att frienda till template friends på det här sättet var jobbigt af, så ger den här klassen helt enkelt möjligheten
+		//att extrahera pointern till friend operators som behöver den
+		template<size_t C>
+		static T* p_GetArrayPointer(MBStaticVector<T, C>& Vector)
+		{
+			return(Vector.m_InternalArray);
+		}
+		template<size_t C>
+		static const T* p_GetArrayPointer(MBStaticVector<T, C> const& Vector)
+		{
+			return(Vector.m_InternalArray);
+		}
+		void p_ZeroArray()
+		{
+			for (size_t i = 0; i < I*K; i++)
+			{
+				m_InternalArray[i] = 0;
+			}
+		}
+		void p_Swap(T& LeftValue, T& RightValue)
+		{
+			T Temp;
+			Temp = std::move(LeftValue);
+			LeftValue = std::move(RightValue);
+			RightValue = std::move(LeftValue);
+		}
+		void p_SwapRow(size_t FirstRowIndex, size_t SecondRowIndex)
+		{
+			for (size_t i = 0; i < K; i++)
+			{
+				p_Swap((*this)(FirstRowIndex, i), (*this)(SecondRowIndex, i));
+			}
+		}
+		void p_SwapColumn(size_t FirstColumnIndex, size_t SecondColumnIndex)
+		{
+			for (size_t i = 0; i < I; i++)
+			{
+				p_Swap((*this)(i, FirstColumnIndex), (*this)(i, SecondColumnIndex));
+			}
+		}
+		void p_SubtractRow(size_t ValueRowIndex, size_t RowToChangeIndex, T const& Multiple)
+		{
+			for (size_t i = 0; i < K; i++)
+			{
+				(*this)(RowToChangeIndex, i) -= (*this)(ValueRowIndex, i) * Multiple;
+			}
+		}
+		void p_MultiplyRow(size_t RowToMultiply, T const& Multiple)
+		{
+			for (size_t i = 0; i < K; i++)
+			{
+				(*this)(RowToMultiply, i) *= Multiple;
+			}
+		}
+		//destruktiv funktion som tar datan och gauss elimineraar den, returnerar antalet switchers av rader
+		void p_RowPreservering_GaussEliminate(MBStaticMatrix* InvertedMatrixToChange,size_t* PositionsToUpdate)
+		{
+			for (size_t CurrentRowIndex = 0; CurrentRowIndex < I; CurrentRowIndex++)
+			{
+				size_t FirstZeroColumn = 0;
+				for (size_t i = 0; i < K; i++)
+				{
+					if ((*this)(CurrentRowIndex, i) != 0)
+					{
+						FirstZeroColumn = i;
+						break;
+					}
+				}
+				PositionsToUpdate[CurrentRowIndex] = FirstZeroColumn;
+				for (size_t i = CurrentRowIndex+1; i < I; i++)
+				{
+					T& CurrentRowValue = (*this)(i, FirstZeroColumn);
+					T& PivotValue = (*this)(CurrentRowIndex, FirstZeroColumn);
+					if (CurrentRowValue != 0)
+					{
+						T SubtractMultiple = CurrentRowValue/PivotValue;
+						p_SubtractRow(CurrentRowIndex, i, SubtractMultiple);
+						if (InvertedMatrixToChange != nullptr)
+						{
+							InvertedMatrixToChange->p_SubtractRow(CurrentRowIndex,i,SubtractMultiple);
+						}
+					}
+				}
+			}
+		}
+
+		//returnerar antalet swaps
+		size_t p_Make_GaussEliminatedMatrix_RowEchelonForm(size_t* PivotPositions,bool SwapRows,MBStaticMatrix* InvertedMatrixToChange)
+		{
+			size_t ReturnValue = 0;
+			//vi kör på en bubble sort för den kan jag utantill och gör så vi kan räkna antal byten
+			for (int i = I-1; i >= 1; i--)
+			{
+				for (size_t j = 0; j < i; j++)
+				{
+					if (PivotPositions[j] > PivotPositions[j+1])
+					{
+						if (SwapRows)
+						{
+							p_SwapRow(PivotPositions[j], PivotPositions[j + 1]);
+							if (InvertedMatrixToChange != nullptr)
+							{
+								p_SwapRow(PivotPositions[j], PivotPositions[j + 1]);
+							}
+						}
+						std::swap(PivotPositions[j], PivotPositions[j + 1]);
+						ReturnValue += 1;
+					}
+				}
+			}
+			return(ReturnValue);
+		}
+		//finnse nbart för determinant så tar in en referns för att göra det tydligt
+		void p_Make_RowEchelonForm_UnitMatrix(MBStaticMatrix& InvertedMatrixToChange,size_t* PivotPositions)
+		{
+			for (size_t RowIndex = 1; RowIndex < I; RowIndex++)
+			{
+				for (int j = RowIndex -1 ; j >= 0; j--)
+				{
+					T& UpperRowValue = (*this)(j, PivotPositions[RowIndex]);
+					T& PivotValue = (*this)(RowIndex, PivotPositions[RowIndex]);
+					if (UpperRowValue == 0)
+					{
+						continue;
+					}
+					T SubtractMultiple = UpperRowValue/PivotValue;
+					p_SubtractRow(RowIndex, j, SubtractMultiple);
+					InvertedMatrixToChange.p_SubtractRow(RowIndex, j, SubtractMultiple);
+				}
+			}
+		}
+	public:
+		MBStaticMatrix()
+		{
+			p_ZeroArray();
+			for (size_t i = 0; i < I*K; i++)
+			{
+				m_InternalArray[i] = 0;
+			}
+		}
+		T& operator()(size_t Row, size_t Column)
+		{
+			size_t Index = (Row * K) + Column;
+			if constexpr(MBSTATIC_MATRIX_ERRORCHECK)
+			{
+				if (Row >= I || Column >= K || Index >= (I * K))
+				{
+					throw std::domain_error("Matrix index out of bounds");
+				}
+			}
+			return(m_InternalArray[Index]);
+		}
+		T const& operator()(size_t Row, size_t Column) const
+		{
+			size_t Index = (Row * K) + Column;
+			if constexpr (MBSTATIC_MATRIX_ERRORCHECK)
+			{
+				if (Row >= I || Column > K || Index >= (I * K))
+				{
+					throw std::domain_error("Matrix index out of bounds");
+				}
+			}
+			return(m_InternalArray[Index]);
+		}
+		MBStaticMatrix<T, I, K> friend operator+(MBStaticMatrix<T, I, K> const& LeftMatrix, MBStaticMatrix<T, I, K> const& RightMatrix)
+		{
+			MBStaticMatrix<T, I, K> ReturnValue;
+			for (size_t i = 0; i < I; i++)
+			{
+				for (size_t k = 0; k < K; k++)
+				{
+					ReturnValue(i, k) = LeftMatrix(i, k) + RightMatrix(i, k);
+				}
+			}
+			return(ReturnValue);
+		}
+		//TODO kanske kan optimeras med använding av copy-elasion medveten kod
+		MBStaticMatrix<T, I, K> friend operator-(MBStaticMatrix<T, I, K> const& LeftMatrix, MBStaticMatrix<T, I, K> const& RightMatrix)
+		{
+			MBStaticMatrix<T, I, K> ReturnValue;
+			for (size_t i = 0; i < I; i++)
+			{
+				for (size_t k = 0; k < K; k++)
+				{
+					ReturnValue(i, k) = LeftMatrix(i, k) - RightMatrix(i, k);
+				}
+			}
+			return(ReturnValue);
+		}
+		template<size_t P>
+		MBStaticMatrix<T, I, P> friend operator*(MBStaticMatrix<T, I, K> const& LeftMatrix, MBStaticMatrix<T, I, P> const& RightMatrix)
+		{
+			MBStaticMatrix<T, I, P> ReturnValue;
+			for (size_t i = 0; i < I; i++)
+			{
+				for (size_t j = 0; j < P; j++)
+				{
+					ReturnValue(i,j) = p_GetDotProduct(&LeftMatrix.m_InternalArray[i*K], 1, &RightMatrix.m_InternalArray[j], P, P);
+				}
+			}
+			return(ReturnValue);
+		}
+		MBStaticMatrix& operator*=(T const& Scalar)
+		{
+			for (size_t i = 0; i < I * K;i++)
+			{
+				m_InternalArray[i] *= Scalar;
+			}
+			return(*this);
+		}
+
+		friend MBStaticMatrix operator*(MBStaticMatrix LeftMatrix, T const& RightScalar)
+		{
+			LeftMatrix *= RightScalar;
+			return(LeftMatrix);
+		}
+		friend MBStaticMatrix operator*(T const& LeftScalar, MBStaticMatrix RightMatrix)
+		{
+			RightMatrix *= LeftScalar;
+			return(RightMatrix);
+		}
+		friend MBStaticVector<T, I> operator*(MBStaticMatrix const& LeftMatrix, MBStaticVector<T, I> const& RightVector)
+		{
+			MBStaticVector<T, I> ReturnValue;
+			for (size_t i = 0; i < I; i++)
+			{
+				ReturnValue[i] = MBStaticMatrix::p_GetDotProduct(&LeftMatrix.m_InternalArray[i * K], 1, MBStaticMatrix::p_GetArrayPointer(RightVector), 1,I);
+			}
+			return(ReturnValue);
+		}
+
+		friend std::ostream& operator<<(std::ostream& Out, const MBStaticMatrix& MatrixToPrint)
+		{
+			for (size_t i = 0; i < I; i++)
+			{
+				for (size_t j = 0; j < K; j++)
+				{
+					Out << MatrixToPrint.m_InternalArray[i * K + j] << " ";
+				}
+				Out << "\n";
+			}
+			return(Out);
+		}
+		
+		MBStaticMatrix<T, K, I> Transpose() const
+		{
+			MBStaticMatrix<T, K, I> ReturnValue;
+			for (size_t i = 0; i < I; i++)
+			{
+				for (size_t j = 0; j < K; j++)
+				{
+					ReturnValue(j, i) = m_InternalArray[i * K + j];
+				}
+			}
+			return(ReturnValue);
+		}
+		//friend std::ofstream& operator<< <T, I, K>(std::ofstream& out, MBStaticMatrix const& MatrixToPrint);
+		template <typename U, size_t S>
+		friend MBStaticMatrix<U, S, S> GetInverse(MBStaticMatrix<U, S,S> MatrixToInvert);
+	};
+	template <typename U, size_t S>
+	MBStaticMatrix<U, S, S> GetInverse(MBStaticMatrix<U, S,S> MatrixToOperateOn)
+	{
+		MBStaticMatrix<U,S,S> ReturnValue;
+		for (size_t i = 0; i < S; i++)
+		{
+			ReturnValue(i, i) = 1;
+		}
+		size_t PivotPositions[S];
+		MatrixToOperateOn.p_RowPreservering_GaussEliminate(&ReturnValue, PivotPositions);
+		MatrixToOperateOn.p_Make_GaussEliminatedMatrix_RowEchelonForm(PivotPositions, true, &ReturnValue);
+		MatrixToOperateOn.p_Make_RowEchelonForm_UnitMatrix(ReturnValue, PivotPositions);
+		return(ReturnValue);
+	}
+	template<typename T>
+	class MBStaticMatrix4 : public MBStaticMatrix<T, 4, 4>
+	{
+
+	private:
+
+	public:
+		MBStaticMatrix4()
+		{
+			(*this)(0, 0) = 1;
+			(*this)(1, 1) = 1;
+			(*this)(2, 2) = 1;
+			(*this)(3, 3) = 1;
+		}
+		const T* GetContinousData() const
+		{
+			return(m_InternalArray);
+		}
+		T& operator()(size_t i, size_t j)
+		{
+			return(MBStaticMatrix<T, 4, 4>::operator()(i, j));
+		}
+		T const& operator()(size_t i, size_t j) const
+		{
+			return(MBStaticMatrix<T, 4, 4>::operator()(i, j));
+		}
+		MBStaticMatrix4(MBStaticMatrix<T, 4, 4>const& MatrixToCopy)
+		{
+			for (size_t i = 0; i < 4; i++)
+			{
+				for (size_t j = 0; j < 4; j++)
+				{
+					(*this)(i, j) = MatrixToCopy(i, j);
+				}
+			}
+		}
+		MBStaticMatrix4(MBStaticMatrix<T, 4, 4>&& MatrixToSteal)
+		{
+			for (size_t i = 0; i < 4; i++)
+			{
+				for (size_t j = 0; j < 4; j++)
+				{
+					(*this)(i, j) = std::move(MatrixToSteal(i, j));
+				}
+			}
+		}
+		MBStaticMatrix4(MBStaticVector3<T> const& InitaliserVector)
+		{
+			for (size_t i = 0; i < 3;i++)
+			{
+				(*this)(i, i) = InitaliserVector[i];
+			}
+			(*this)(3, 3) = 1;
+		}
+		MBStaticMatrix4(MBStaticMatrix<T,3,3> InitaliserVector)
+		{
+			for (size_t i = 0; i < 3;i++)
+			{
+				for (size_t j = 0; j < 3;j++)
+				{
+					(*this)(i, j) = InitaliserVector(i,j);
+				}
+			}
+			(*this)(3, 3) = 1;
+		}
+		T GetDeterminant() const
+		{
+			//Behöver kopiera matrixen för detta, aningen innefektivt men tror inte riktigt det finns något annat sätt
+			MBStaticMatrix4 MatrixToOperateOn = *this;
+			size_t PivotPositions[4];
+			MatrixToOperateOn.p_RowPreservering_GaussEliminate(nullptr, PivotPositions);
+			std::cout << MatrixToOperateOn << std::endl;
+			size_t NumberOfSwaps = MatrixToOperateOn.p_Make_GaussEliminatedMatrix_RowEchelonForm(PivotPositions, false, nullptr);
+			std::cout << MatrixToOperateOn << std::endl;
+			T Determinant = 1;
+			for (size_t i = 0; i < 4;i++)
+			{
+				Determinant *= MatrixToOperateOn(i, PivotPositions[i]);
+			}
+			if (NumberOfSwaps & 1 != 0)
+			{
+				Determinant *= -1;
+			}
+			return(Determinant);
+		}
+		MBStaticMatrix4 GetInverse() const
+		{
+			MBStaticMatrix4 ReturnValue;
+			MBStaticMatrix4 MatrixToOperateOn = *this;
+			size_t PivotPositions[4];
+			MatrixToOperateOn.p_RowPreservering_GaussEliminate(&ReturnValue, PivotPositions);
+			MatrixToOperateOn.p_Make_GaussEliminatedMatrix_RowEchelonForm(PivotPositions, true, &ReturnValue);
+			MatrixToOperateOn.p_Make_RowEchelonForm_UnitMatrix(ReturnValue, PivotPositions);
+			return(ReturnValue);
+		}
+	};
+
+	template <typename T>
+	static MBStaticMatrix<T,3,3> GetRotationMatrix(double AngleToRotate, MBStaticVector3<T> const& SuppliedAxis)
+	{
+		AngleToRotate *= (double)3.141592653589793238 / 180;
+		MBStaticVector3<T> AxisToRotateFrom = SuppliedAxis.Normalized();
+		MBStaticVector3<T> e1;
+		bool e1Finished = false;
+		//varför behövs detta?
+		for (size_t i = 0; i < 3; i++)
+		{
+			if (AxisToRotateFrom[i] == 0)
+			{
+				e1[i] = 1;
+				e1Finished = true;
+				break;
+			}
+		}
+		if (!e1Finished)
+		{
+			e1[0] = -AxisToRotateFrom[1];
+			e1[1] = AxisToRotateFrom[0];
+		}
+		//
+		e1 = e1.Normalized();
+		MBStaticVector3<T> e2 = CrossProduct(AxisToRotateFrom, e1);
+		MBStaticMatrix<T, 3, 3> BaseMatrix;
+		BaseMatrix(0, 0) = e1[0];
+		BaseMatrix(1, 0) = e1[1];
+		BaseMatrix(2, 0) = e1[2];
+		BaseMatrix(0, 2) = AxisToRotateFrom[0];
+		BaseMatrix(1, 2) = AxisToRotateFrom[1];
+		BaseMatrix(2, 2) = AxisToRotateFrom[2];
+		BaseMatrix(0, 1) = e2[0];
+		BaseMatrix(1, 1) = e2[1];
+		BaseMatrix(2, 1) = e2[2];
+		MBStaticMatrix<T, 3, 3> RegularRotation;
+		RegularRotation(0, 0) = std::cos(AngleToRotate);
+		RegularRotation(1, 1) = std::cos(AngleToRotate);
+		RegularRotation(0, 1) = -std::sin(AngleToRotate);
+		RegularRotation(1, 0) = std::sin(AngleToRotate);
+		RegularRotation(2, 2) = 1;
+		MBStaticMatrix<T, 3, 3> RotationMatrix = BaseMatrix * RegularRotation * BaseMatrix.Transpose();
+		return(RotationMatrix);
+	}
+
+	template <typename T>
+	class Quaternion
+	{
+	private:
+	public:
+		T a = 0;
+		T i = 0;
+		T j = 0;
+		T k = 0;
+		friend std::ostream& operator<<(std::ostream& os, Quaternion<T> QuaternionToPrint)
+		{
+			os << QuaternionToPrint.a << " " << QuaternionToPrint.i << " " << QuaternionToPrint.j << " " << QuaternionToPrint.k;
+			return(os);
+		}
+		Quaternion<T>& operator+=(const Quaternion<T>& RightQuaternion)
+		{
+			this->a += RightQuaternion.a;
+			this->i += RightQuaternion.i;
+			this->j += RightQuaternion.j;
+			this->k += RightQuaternion.k;
+			return(*this);
+		}
+		Quaternion<T>& operator-=(const Quaternion<T>& RightQuaternion)
+		{
+			this->a -= RightQuaternion.a;
+			this->i -= RightQuaternion.i;
+			this->j -= RightQuaternion.j;
+			this->k -= RightQuaternion.k;
+			return(*this);
+		}
+		Quaternion<T>& operator*=(const Quaternion<T>& RightQuaternion)
+		{
+			MBStaticVector3<T> ThisVector = MBStaticVector3<T>(this->i, this->j, this->k);
+			MBStaticVector3<T> RightVector = MBStaticVector3<T>(RightQuaternion.i, RightQuaternion.j, RightQuaternion.k);
+			MBStaticVector3<T> NewVector = this->a * RightVector + RightQuaternion.a * ThisVector + CrossProduct(ThisVector,RightVector);
+			this->a = this->a * RightQuaternion.a - ThisVector.DotProduct(RightVector);
+			this->i = NewVector[0];
+			this->j = NewVector[1];
+			this->k = NewVector[2];
+			return(*this);
+		}
+		Quaternion<T>& operator*=(const T& RightScalar)
+		{
+			this->a *= RightScalar;
+			this->i *= RightScalar;
+			this->j *= RightScalar;
+			this->k *= RightScalar;
+			return(*this);
+		}
+		Quaternion<T>& operator/=(const T& RightScalar)
+		{
+			this->a /= RightScalar;
+			this->i /= RightScalar;
+			this->j /= RightScalar;
+			this->k /= RightScalar;
+			return(*this);
+		}
+		friend Quaternion<T> operator-(const Quaternion<T>& LeftQuaternion, const Quaternion<T>& RightQuaternion)
+		{
+			Quaternion<T> Result(LeftQuaternion);
+			Result -= RightQuaternion;
+			return(Result);
+		}
+		friend Quaternion<T> operator+(const Quaternion<T>& LeftQuaternion, const Quaternion<T>& RightQuaternion)
+		{
+			Quaternion<T> Result(LeftQuaternion);
+			Result += RightQuaternion;
+			return(Result);
+		}
+		friend Quaternion<T> operator*(const Quaternion<T>& LeftQuaternion, const T& RightScalar)
+		{
+			Quaternion<T> Result(LeftQuaternion);
+			Result *= RightScalar;
+			return(Result);
+		}
+		friend Quaternion<T> operator*(const T& LeftScalar, const Quaternion<T>& RightQuaternion)
+		{
+			Quaternion<T> Result(RightQuaternion);
+			Result *= LeftScalar;
+			return(Result);
+		}
+		friend Quaternion<T> operator/(const Quaternion<T>& LeftQuaternion, const T &RightScalar)
+		{
+			Quaternion<T> Result(LeftQuaternion);
+			Result /= RightScalar;
+			return(Result);
+		}
+		friend Quaternion<T> operator*(const Quaternion<T>& LeftQuaternion, const Quaternion<T>& RightQuaternion)
+		{
+			Quaternion<T> Result(LeftQuaternion);
+			Result *= RightQuaternion;
+			return(Result);
+		}
+		Quaternion(T NewA, T NewI, T NewJ, T NewK)
+		{
+			this->a = NewA;
+			this->i = NewI;
+			this->j = NewJ;
+			this->k = NewK;
+		}
+		Quaternion(float RotationAngle, MBStaticVector3<T> const& RotationVector)
+		{
+			//omvandlar rotationen från euler till radianer
+			RotationAngle = RotationAngle * 3.1415926535 / 180;
+			RotationVector = RotationVector.Normalized();
+			RotationVector = RotationVector * std::sin(RotationAngle / 2);
+			this->a = std::cos(RotationAngle / 2);
+			this->i = RotationVector[0];
+			this->j = RotationVector[1];
+			this->k = RotationVector[2];
+		}
+		Quaternion()
+		{
+
+		}
+		MBDynamicVector3<T> RotateVector(MBStaticVector3<T> const&  VectorToRotate)
+		{
+			Quaternion<T> NormalizedQuaternion = (*this);
+			NormalizedQuaternion.Normalize();
+			Quaternion<T> InvertedQuaternion = NormalizedQuaternion;
+			InvertedQuaternion.Invert();
+			Quaternion<T> VectorQuaternion = Quaternion<T>(0, VectorToRotate[0], VectorToRotate[1], VectorToRotate[2]);
+			VectorQuaternion = NormalizedQuaternion * VectorQuaternion * InvertedQuaternion;
+			return(MBDynamicVector3<T>(VectorQuaternion.i, VectorQuaternion.j, VectorQuaternion.k));
+		}
+		MBStaticMatrix<T,3,3> GetRotationMatrix()
+		{
+			MBStaticMatrix<T, 3, 3> ReturnValue;
+			//eventeullt normaliserar vi inna, har ingen sån, men antar i alla fall att 
+			ReturnValue(0, 0) = 1 - 2 * (j * j + k * k);
+			ReturnValue(0, 1) = 2 * (i * j - k * a);
+			ReturnValue(0, 2) = 2 * (i * k + j * a);
+			ReturnValue(1, 0) = 2 * (i * j + k * a);
+			ReturnValue(1, 1) = 1 - 2 * (i * i + k * k);
+			ReturnValue(1, 2) = 2 * (j * k - i * a);
+			ReturnValue(2, 0) = 2 * (i * k - j * a);
+			ReturnValue(2, 1) = 2 * (j * k + i * a);
+			ReturnValue(2, 2) = 1 - 2 * (i * i + j * j);
+			return(ReturnValue);
+		}
+		/* snodd wikipedia kod
+		Quaternion slerp(Quaternion v0, Quaternion v1, double t) {
+	// Only unit quaternions are valid rotations.
+	// Normalize to avoid undefined behavior.
+	v0.normalize();
+	v1.normalize();
+
+	// Compute the cosine of the angle between the two vectors.
+	double dot = dot_product(v0, v1);
+
+	// If the dot product is negative, slerp won't take
+	// the shorter path. Note that v1 and -v1 are equivalent when
+	// the negation is applied to all four components. Fix by
+	// reversing one quaternion.
+	if (dot < 0.0f) {
+		v1 = -v1;
+		dot = -dot;
+	}
+
+	const double DOT_THRESHOLD = 0.9995;
+	if (dot > DOT_THRESHOLD) {
+		// If the inputs are too close for comfort, linearly interpolate
+		// and normalize the result.
+
+		Quaternion result = v0 + t*(v1 - v0);
+		result.normalize();
+		return result;
+	}
+
+	// Since dot is in range [0, DOT_THRESHOLD], acos is safe
+	double theta_0 = acos(dot);        // theta_0 = angle between input vectors
+	double theta = theta_0*t;          // theta = angle between v0 and result
+	double sin_theta = sin(theta);     // compute this value only once
+	double sin_theta_0 = sin(theta_0); // compute this value only once
+
+	double s0 = cos(theta) - dot * sin_theta / sin_theta_0;  // == sin(theta_0 - theta) / sin(theta_0)
+	double s1 = sin_theta / sin_theta_0;
+
+	return (s0 * v0) + (s1 * v1);
+}
+		*/
+
+		Quaternion<T> Slerp(Quaternion<T> EndQuaternion, float	NormalizedTime)
+		{
+			//förutsätter att quaternionerna är normaliserade
+			EndQuaternion.Normalize();
+			Quaternion<T> Copy = *this;
+			Copy.Normalize();
+			MBDynamicVector<T> v0(4);
+			v0[0] = Copy.a;
+			v0[1] = Copy.i;
+			v0[2] = Copy.j;
+			v0[3] = Copy.k;
+			MBDynamicVector<T> v1(4);
+			v1[0] = EndQuaternion.a;
+			v1[1] = EndQuaternion.i;
+			v1[2] = EndQuaternion.j;
+			v1[3] = EndQuaternion.k;
+
+			// Compute the cosine of the angle between the two vectors.
+			double dot = v0.DotProduct(v1);
+
+			// If the dot product is negative, slerp won't take
+			// the shorter path. Note that v1 and -v1 are equivalent when
+			// the negation is applied to all four components. Fix by 
+			// reversing one quaternion.
+			if (dot < 0.0f) {
+				v1 = -1 * v1;
+				dot = -dot;
+			}
+
+			const double DOT_THRESHOLD = 0.9995;
+			if (dot > DOT_THRESHOLD) {
+				// If the inputs are too close for comfort, linearly interpolate
+				// and normalize the result.
+
+				MBDynamicVector<T> result = v0 + (NormalizedTime * (v1 - v0));
+				result = result.Normalized();
+				return(Quaternion(result[0], result[1], result[2], result[3]));
+			}
+
+			// Since dot is in range [0, DOT_THRESHOLD], acos is safe
+			double theta_0 = std::acos(dot);        // theta_0 = angle between input vectors
+			double theta = theta_0 * NormalizedTime;          // theta = angle between v0 and result
+			double sin_theta = std::sin(theta);     // compute this value only once
+			double sin_theta_0 = std::sin(theta_0); // compute this value only once
+
+			double s0 = std::cos(theta) - dot * sin_theta / sin_theta_0;  // == sin(theta_0 - theta) / sin(theta_0)
+			double s1 = sin_theta / sin_theta_0;
+			MBDynamicVector<T> ResultVector = (s0 * v0) + (s1 * v1);
+			return(Quaternion<T>(ResultVector[0], ResultVector[1], ResultVector[2], ResultVector[3]));
+		}
+		void Normalize()
+		{
+			T Magnitude = Sqrt<T>(a * a + i * i + j * j + k * k);
+			this->a /= Magnitude;
+			this->i /= Magnitude;
+			this->j /= Magnitude;
+			this->k /= Magnitude;
+		}
+		void Invert()
+		{
+			T Denominator = a * a + i * i + j * j + k * k;
+			this->a = a / Denominator;
+			this->i = -i / Denominator;
+			this->j = -j / Denominator;
+			this->k = -k / Denominator;
+		}
+	};
+	//template<typename T, size_t I, size_t K>
+	//std::ofstream& operator<<(std::ostream& os, const MBStaticMatrix<T, I, K>& L)
+	//{
+	//	for (size_t i = 0; i < I; i++)
+	//	{
+	//		for (size_t j = 0; j < K; j++)
+	//		{
+	//			out << MatrixToPrint.m_InternalArray[i * K + j] << " ";
+	//		}
+	//		out << "\n";
+	//	}
+	//	return(out);
+	//}
+
 };
+
+
 //MBMath::MBMatrix<float> Test();
 //början på cpp filen
 namespace MBMath
 {
-	template<typename T> MBMatrix<T> operator+(const MBMatrix<T>& Left, const MBMatrix<T>& Right)
+	template<typename T> MBDynamicMatrix<T> operator+(const MBDynamicMatrix<T>& Left, const MBDynamicMatrix<T>& Right)
 	{
-		MBMatrix<T> MatrixToReturn(Left.MatrixData.size(),Left.MatrixData[0].size());
+		MBDynamicMatrix<T> MatrixToReturn(Left.MatrixData.size(),Left.MatrixData[0].size());
 		for (size_t i = 0; i < Left.MatrixData.size(); i++)
 		{
 			for (size_t j = 0; j < Left.MatrixData[0].size(); j++)
@@ -1179,9 +1789,9 @@ namespace MBMath
 			}
 		}
 	}
-	template<typename T> MBMatrix<T> operator-(const MBMatrix<T>& Left, const MBMatrix<T>& Right)
+	template<typename T> MBDynamicMatrix<T> operator-(const MBDynamicMatrix<T>& Left, const MBDynamicMatrix<T>& Right)
 	{
-		MBMatrix<T> MatrixToReturn(Left.MatrixData.size(), Left.MatrixData[0].size());
+		MBDynamicMatrix<T> MatrixToReturn(Left.MatrixData.size(), Left.MatrixData[0].size());
 		for (size_t i = 0; i < Left.MatrixData.size(); i++)
 		{
 			for (size_t j = 0; j < Left.MatrixData[0].size(); j++)
@@ -1190,7 +1800,7 @@ namespace MBMath
 			}
 		}
 	}
-	template<typename T> MBMatrix<T> operator*(const MBMatrix<T>& Left, const MBMatrix<T>& Right)
+	template<typename T> MBDynamicMatrix<T> operator*(const MBDynamicMatrix<T>& Left, const MBDynamicMatrix<T>& Right)
 	{
 		//nu gör vi matris multiplikation;
 		long long NumberOfRows = Left.NumberOfRows();
@@ -1204,7 +1814,7 @@ namespace MBMath
 		{
 			InnerIterations = NumberOfRows;
 		}
-		MBMatrix<T> MatrixToReturn(NumberOfRows, NumberOfColumns);
+		MBDynamicMatrix<T> MatrixToReturn(NumberOfRows, NumberOfColumns);
 		for (size_t CurrentRow = 0; CurrentRow < NumberOfRows; CurrentRow++)
 		{
 			for (size_t CurrentColumn = 0; CurrentColumn < NumberOfColumns; CurrentColumn++)
@@ -1222,11 +1832,11 @@ namespace MBMath
 	}
 									 
 	template<typename T> 
-	MBMatrix<T> operator*(const MBMatrix<T>& Left, long long Right)
+	MBDynamicMatrix<T> operator*(const MBDynamicMatrix<T>& Left, long long Right)
 	{
 		long long NumberOfRows = Left.NumberOfRows();
 		long long NumberOfColumns = Left.NumberOfColumns();
-		MBMatrix<T> MatrixToReturn(NumberOfRows,NumberOfColumns);
+		MBDynamicMatrix<T> MatrixToReturn(NumberOfRows,NumberOfColumns);
 		for (size_t i = 0; i < NumberOfRows; i++)
 		{
 			for (size_t j = 0; j < NumberOfColumns; j++)
@@ -1236,7 +1846,7 @@ namespace MBMath
 		}
 		return(MatrixToReturn);
 	}
-	template<typename T> MBMatrix<T> operator*(long long Left, const MBMatrix<T>& Right)
+	template<typename T> MBDynamicMatrix<T> operator*(long long Left, const MBDynamicMatrix<T>& Right)
 	{
 		long long NumberOfRows = Right.NumberOfRows();
 		long long NumberOfColumns = Right.NumberOfColumns();
@@ -1248,7 +1858,7 @@ namespace MBMath
 			}
 		}
 	}
-	template<typename T> MBMatrix<T> operator*(double Left, const MBMatrix<T>& Right)
+	template<typename T> MBDynamicMatrix<T> operator*(double Left, const MBDynamicMatrix<T>& Right)
 	{
 		long long NumberOfRows = Right.NumberOfRows();
 		long long NumberOfColumns = Right.NumberOfColumns();
@@ -1260,7 +1870,7 @@ namespace MBMath
 			}
 		}
 	}
-	template<typename T> MBMatrix<T> operator*(const MBMatrix<T> Left, double Right)
+	template<typename T> MBDynamicMatrix<T> operator*(const MBDynamicMatrix<T> Left, double Right)
 	{
 		long long NumberOfRows = Left.NumberOfRows();
 		long long NumberOfColumns = Left.NumberOfColumns();
@@ -1272,6 +1882,10 @@ namespace MBMath
 			}
 		}
 	}
+	template <typename T>
+	using MBMatrix4 = MBStaticMatrix4<T>;
+	
+	template <typename T>
+	using MBVector3 = MBStaticVector3<T>;
 }
-
 //#include<MBMatrix.cpp>

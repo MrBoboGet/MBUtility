@@ -1,3 +1,4 @@
 /.vs
 /out/
 /MBPM_Builds/
+/CMakeSettings.json

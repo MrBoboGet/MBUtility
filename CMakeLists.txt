@@ -120,6 +120,11 @@ set(COMMON_STATIC_LIBRARIES
 )
 set(COMMON_LIBRARIES ${COMMON_STATIC_LIBRARIES} ${COMMON_DYNAMIC_LIBRARIES})
 
+set(EXECUTABLE_FILES 
+	"${CMAKE_CURRENT_SOURCE_DIR}/MBUtilityTest.cpp"
+)
+
+
 add_library(MBUtility_SD STATIC ${COMMON_FILES})
 MBPM_ApplyTargetConfiguration("MBUtility_SD" "STATIC" "DEBUG")
 target_compile_features("MBUtility_SD" PRIVATE cxx_std_17)
@@ -129,3 +134,7 @@ add_library(MBUtility_SR STATIC ${COMMON_FILES})
 MBPM_ApplyTargetConfiguration("MBUtility_SR" "STATIC" "RELEASE")
 target_compile_features("MBUtility_SR" PRIVATE cxx_std_17)
 target_link_libraries("MBUtility_SR" ${COMMON_LIBRARIES})
+
+add_executable(MBUtility_Test ${COMMON_FILES} ${EXECUTABLE_FILES})
+MBPM_ApplyTargetConfiguration("MBUtility_Test" "STATIC" "DEBUG")
+target_compile_features("MBUtility_Test" PRIVATE cxx_std_17)
