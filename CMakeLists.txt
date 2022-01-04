@@ -97,7 +97,6 @@ set(PROJECT_SOURCES
 	"${CMAKE_CURRENT_SOURCE_DIR}//MBCompileDefinitions.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}//MBErrorHandling.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}//MBMatrix.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}//Vector2D.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/MBFiles.cpp"
 )
 set(PROJECT_HEADERS 
@@ -110,7 +109,6 @@ set(PROJECT_HEADERS
 	"${CMAKE_CURRENT_SOURCE_DIR}//MBRandom.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}//MBStrings.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}//TextReader.h"
-	"${CMAKE_CURRENT_SOURCE_DIR}//Vector2D.h"
 	"${CMAKE_CURRENT_SOURCE_DIR}/MBFiles.h"
 )
 set(COMMON_FILES ${PROJECT_SOURCES} ${PROJECT_HEADERS})
@@ -136,5 +134,5 @@ target_compile_features("MBUtility_SR" PRIVATE cxx_std_17)
 target_link_libraries("MBUtility_SR" ${COMMON_LIBRARIES})
 
 add_executable(MBUtility_Test ${COMMON_FILES} ${EXECUTABLE_FILES})
-MBPM_ApplyTargetConfiguration("MBUtility_Test" "STATIC" "DEBUG")
+MBPM_ApplyTargetConfiguration("MBUtility_Test" "STATIC" "STATIC")
 target_compile_features("MBUtility_Test" PRIVATE cxx_std_17)

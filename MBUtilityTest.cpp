@@ -127,5 +127,6 @@ int main()
 	std::cout << "Dynamic inverse time: " << Dynamic4Time / double(CLOCKS_PER_SEC)<<std::endl;
 	std::cout << "Static inverse time: " << Static4Time / double(CLOCKS_PER_SEC)<<std::endl;
 
-	MBMath::MBMatrix4<float> Test123;
+	MBMath::Quaternion<float> Test;
+	Test.Slerp({ 1,2,3,4 }, 4);
 }

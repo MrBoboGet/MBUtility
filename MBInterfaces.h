@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <algorithm>
 #include <stdexcept>
-
+#include <memory>
 namespace MBUtility
 {
 	class MBOctetInputStream
@@ -39,6 +39,12 @@ namespace MBUtility
 	public:
 		virtual uintmax_t SetOutputPosition(uintmax_t NewOutputPosition) = 0;
 		virtual uintmax_t GetOutputPosition() = 0;
+	};
+	class MBSearchableInputStream : public MBOctetInputStream
+	{
+	public:
+		virtual uintmax_t SetInputPosition(uintmax_t NewOutputPosition) = 0;
+		virtual uintmax_t GetInputPosition() = 0;
 	};
 	class MBFileOutputStream : public MBSearchableOutputStream
 	{
@@ -84,6 +90,80 @@ namespace MBUtility
 			return(ReturnValue);
 		}
 		~MBFileOutputStream() override
+		{
+
+		}
+	};
+	class MBFileInputStream : public MBSearchableInputStream
+	{
+	private:
+
+		std::ifstream* m_ExternalFileStream = nullptr;
+		std::unique_ptr<std::ifstream> m_OwnedPointer = nullptr;
+		std::ifstream m_StreamObject;
+
+		std::ifstream* p_GetPointerToUse()
+		{
+			if (m_ExternalFileStream != nullptr)
+			{
+				return(m_ExternalFileStream);
+			}
+			else if (m_OwnedPointer != nullptr)
+			{
+				return(m_OwnedPointer.get());
+			}
+			else if (m_StreamObject.is_open())
+			{
+				return(&m_StreamObject);
+			}
+			return(nullptr);
+		}
+	public:
+		MBFileInputStream(std::ifstream* OutputStream)
+		{
+			m_OwnedPointer = OutputStream;
+		}
+		MBFileInputStream(std::string const& FilePath)
+		{
+			m_StreamObject = std::ifstream(FilePath, std::ios::binary | std::ios::in);
+		}
+		MBFileInputStream(std::ifstream&& FileToSteal)
+		{
+			m_OwnedPointer = FileToSteal;
+		}
+		size_t Read(void* Buffer, size_t BytesToRead) override
+		{
+			std::ifstream* PointerToUse = p_GetPointerToUse();
+			if (PointerToUse == nullptr)
+			{
+				return(0);
+			}
+			else
+			{
+				size_t ReturnValue = PointerToUse->read((char*)Buffer, BytesToRead);
+				return(ReturnValue);
+			}
+		}
+		uintmax_t SetInputPosition(uintmax_t NewOutputPosition) override
+		{
+			std::ifstream* PointerToUse = p_GetPointerToUse();
+			if (PointerToUse == nullptr)
+			{
+				return(-1);
+			}
+			uintmax_t ReturnValue = PointerToUse->seekg(NewOutputPosition);
+			return(ReturnValue);
+		}
+		uintmax_t GetInputPosition() override
+		{
+			std::ifstream* PointerToUse = p_GetPointerToUse();
+			if (PointerToUse == nullptr)
+			{
+				return(-1);
+			}
+			return(PointerToUse->tellg());
+		}
+		~MBFileInputStream() override
 		{
 
 		}

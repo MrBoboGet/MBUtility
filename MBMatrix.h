@@ -973,7 +973,7 @@ namespace MBMath
 	template <typename U,size_t S>
 	U DotProduct(MBStaticVector<U,S> const& LeftVector, MBStaticVector<U,S> const& RightVector)
 	{
-		U ReturnValue;
+		U ReturnValue = 0;
 		for (size_t i = 0; i < S; i++)
 		{
 			ReturnValue += LeftVector.m_InternalArray[i] * RightVector.m_InternalArray[i];
@@ -1464,7 +1464,7 @@ namespace MBMath
 	};
 
 	template <typename T>
-	static MBStaticMatrix<T,3,3> GetRotationMatrix(double AngleToRotate, MBStaticVector3<T> const& SuppliedAxis)
+	MBStaticMatrix<T,3,3> GetRotationMatrix(double AngleToRotate, MBStaticVector3<T> const& SuppliedAxis)
 	{
 		AngleToRotate *= (double)3.141592653589793238 / 180;
 		MBStaticVector3<T> AxisToRotateFrom = SuppliedAxis.Normalized();
@@ -1507,7 +1507,30 @@ namespace MBMath
 		MBStaticMatrix<T, 3, 3> RotationMatrix = BaseMatrix * RegularRotation * BaseMatrix.Transpose();
 		return(RotationMatrix);
 	}
-
+	template<typename T>
+	MBStaticMatrix<T, 3, 3> GetRotationMatrix(float XRotation,float YRotation,float ZRotation)
+	{
+		XRotation *= (double)3.141592653589793238 / 180;
+		YRotation *= (double)3.141592653589793238 / 180;
+		ZRotation *= (double)3.141592653589793238 / 180;
+		const float SinX = std::sin(XRotation);
+		const float CosX = std::cos(XRotation);
+		const float SinY = std::sin(YRotation);
+		const float CosY = std::cos(YRotation);
+		const float SinZ = std::sin(ZRotation);
+		const float CosZ = std::cos(ZRotation);
+		MBStaticMatrix<T,3,3> ReturnValue;
+		ReturnValue(0, 0) = CosY * CosZ;
+		ReturnValue(0, 1) = -CosX * SinZ + SinX * SinY * CosZ;
+		ReturnValue(0, 2) = SinX * SinZ + CosX * SinY * CosZ;
+		ReturnValue(1, 0) = CosY * SinZ;
+		ReturnValue(1, 1) = CosX * CosZ+SinX*SinY*SinZ;
+		ReturnValue(1, 2) = -SinX * CosZ+CosX*SinY*SinZ;
+		ReturnValue(2, 0) = -SinY;
+		ReturnValue(2, 1) = SinX*CosY;
+		ReturnValue(2, 2) = CosX*CosY;
+		return(ReturnValue);
+	}
 	template <typename T>
 	class Quaternion
 	{
@@ -1690,25 +1713,26 @@ namespace MBMath
 }
 		*/
 
-		Quaternion<T> Slerp(Quaternion<T> EndQuaternion, float	NormalizedTime)
+		Quaternion<T> Slerp(Quaternion<T> EndQuaternion, float NormalizedTime)
 		{
 			//förutsätter att quaternionerna är normaliserade
 			EndQuaternion.Normalize();
-			Quaternion<T> Copy = *this;
-			Copy.Normalize();
-			MBDynamicVector<T> v0(4);
-			v0[0] = Copy.a;
-			v0[1] = Copy.i;
-			v0[2] = Copy.j;
-			v0[3] = Copy.k;
-			MBDynamicVector<T> v1(4);
+			//Quaternion<T> Copy = *this;
+			//Copy.Normalize();
+			MBStaticVector<T,4> v0;
+			v0[0] = a;
+			v0[1] = i;
+			v0[2] = j;
+			v0[3] = k;
+			v0 = v0.Normalized();
+			MBStaticVector<T,4> v1;
 			v1[0] = EndQuaternion.a;
 			v1[1] = EndQuaternion.i;
 			v1[2] = EndQuaternion.j;
 			v1[3] = EndQuaternion.k;
 
 			// Compute the cosine of the angle between the two vectors.
-			double dot = v0.DotProduct(v1);
+			double dot = DotProduct( v0,v1);
 
 			// If the dot product is negative, slerp won't take
 			// the shorter path. Note that v1 and -v1 are equivalent when
@@ -1724,7 +1748,7 @@ namespace MBMath
 				// If the inputs are too close for comfort, linearly interpolate
 				// and normalize the result.
 
-				MBDynamicVector<T> result = v0 + (NormalizedTime * (v1 - v0));
+				MBStaticVector<T,4> result = v0 + (NormalizedTime * (v1 - v0));
 				result = result.Normalized();
 				return(Quaternion(result[0], result[1], result[2], result[3]));
 			}
@@ -1737,8 +1761,8 @@ namespace MBMath
 
 			double s0 = std::cos(theta) - dot * sin_theta / sin_theta_0;  // == sin(theta_0 - theta) / sin(theta_0)
 			double s1 = sin_theta / sin_theta_0;
-			MBDynamicVector<T> ResultVector = (s0 * v0) + (s1 * v1);
-			return(Quaternion<T>(ResultVector[0], ResultVector[1], ResultVector[2], ResultVector[3]));
+			MBStaticVector<T,4> ResultVector = (s0 * v0) + (s1 * v1);
+			return(Quaternion<T>(std::move(ResultVector[0]), std::move(ResultVector[1]), std::move(ResultVector[2]), std::move(ResultVector[3])));
 		}
 		void Normalize()
 		{
