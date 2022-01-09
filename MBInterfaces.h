@@ -43,8 +43,8 @@ namespace MBUtility
 	class MBSearchableInputStream : public MBOctetInputStream
 	{
 	public:
-		virtual uintmax_t SetInputPosition(uintmax_t NewOutputPosition) = 0;
-		virtual uintmax_t GetInputPosition() = 0;
+		virtual uint64_t SetInputPosition(int64_t Offset,int whence = SEEK_SET) = 0;
+		virtual uint64_t GetInputPosition() = 0;
 	};
 	class MBFileOutputStream : public MBSearchableOutputStream
 	{
@@ -121,7 +121,7 @@ namespace MBUtility
 	public:
 		MBFileInputStream(std::ifstream* OutputStream)
 		{
-			m_OwnedPointer = OutputStream;
+			m_ExternalFileStream = OutputStream;
 		}
 		MBFileInputStream(std::string const& FilePath)
 		{
@@ -129,7 +129,7 @@ namespace MBUtility
 		}
 		MBFileInputStream(std::ifstream&& FileToSteal)
 		{
-			m_OwnedPointer = FileToSteal;
+			m_StreamObject = std::move(FileToSteal);
 		}
 		size_t Read(void* Buffer, size_t BytesToRead) override
 		{
@@ -140,21 +140,37 @@ namespace MBUtility
 			}
 			else
 			{
-				size_t ReturnValue = PointerToUse->read((char*)Buffer, BytesToRead);
+				size_t ReturnValue = PointerToUse->read((char*)Buffer, BytesToRead).gcount();
+				if (PointerToUse->eof())
+				{
+					PointerToUse->clear();
+				}
 				return(ReturnValue);
 			}
 		}
-		uintmax_t SetInputPosition(uintmax_t NewOutputPosition) override
+		uint64_t SetInputPosition(int64_t NewOutputPosition,int whence) override
 		{
 			std::ifstream* PointerToUse = p_GetPointerToUse();
 			if (PointerToUse == nullptr)
 			{
 				return(-1);
 			}
-			uintmax_t ReturnValue = PointerToUse->seekg(NewOutputPosition);
+			uintmax_t ReturnValue = -1;
+			if (whence == SEEK_SET)
+			{
+				ReturnValue = PointerToUse->seekg(NewOutputPosition).tellg();
+			}
+			else if (whence == SEEK_CUR)
+			{
+				ReturnValue = PointerToUse->seekg(NewOutputPosition, std::ios::cur).tellg();
+			}
+			else if (whence == SEEK_END)
+			{
+				ReturnValue = PointerToUse->seekg(NewOutputPosition, std::ios::end).tellg();
+			}
 			return(ReturnValue);
 		}
-		uintmax_t GetInputPosition() override
+		uint64_t GetInputPosition() override
 		{
 			std::ifstream* PointerToUse = p_GetPointerToUse();
 			if (PointerToUse == nullptr)
@@ -231,35 +247,35 @@ namespace MBUtility
 
 		}
 	};
-	class MBFileInputStream : public MBOctetInputStream
-	{
-	private:
-		std::ifstream* m_UnderlyingHandle;
-		bool m_StreamFinished = false;
-	public:
-		MBFileInputStream(std::ifstream* AssociatedFile)
-		{
-			m_UnderlyingHandle = AssociatedFile;
-		}
-		size_t Read(void* Buffer, size_t RequestedBytes)
-		{
-			if (m_StreamFinished && RequestedBytes > 0)
-			{
-				throw std::out_of_range("Reading beyond file size");
-			}
-			m_UnderlyingHandle->read((char*)Buffer, RequestedBytes);
-			size_t BytesRead = m_UnderlyingHandle->gcount();
-			if (BytesRead < RequestedBytes)
-			{
-				m_StreamFinished = true;
-			}
-			return(m_UnderlyingHandle->gcount());
-		}
-		~MBFileInputStream() override
-		{
-
-		}
-	};
+	//class MBFileInputStream : public MBOctetInputStream
+	//{
+	//private:
+	//	std::ifstream* m_UnderlyingHandle;
+	//	bool m_StreamFinished = false;
+	//public:
+	//	MBFileInputStream(std::ifstream* AssociatedFile)
+	//	{
+	//		m_UnderlyingHandle = AssociatedFile;
+	//	}
+	//	size_t Read(void* Buffer, size_t RequestedBytes)
+	//	{
+	//		if (m_StreamFinished && RequestedBytes > 0)
+	//		{
+	//			throw std::out_of_range("Reading beyond file size");
+	//		}
+	//		m_UnderlyingHandle->read((char*)Buffer, RequestedBytes);
+	//		size_t BytesRead = m_UnderlyingHandle->gcount();
+	//		if (BytesRead < RequestedBytes)
+	//		{
+	//			m_StreamFinished = true;
+	//		}
+	//		return(m_UnderlyingHandle->gcount());
+	//	}
+	//	~MBFileInputStream() override
+	//	{
+	//
+	//	}
+	//};
 
 	class MBBasicUserAuthenticator
 	{
