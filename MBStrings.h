@@ -139,28 +139,13 @@ namespace MBUtility
 		}
 		return(ReturnValue);
 	}
+	static uint8_t s_ByteToHexMap[16] = { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f' };
 	inline std::string HexEncodeByte(uint8_t ByteToEncode)
 	{
 		std::string ReturnValue = "";
-		std::unordered_map<uint8_t, char> CharMap(0);
-		CharMap[0] = '0';
-		CharMap[1] = '1';
-		CharMap[2] = '2';
-		CharMap[3] = '3';
-		CharMap[4] = '4';
-		CharMap[5] = '5';
-		CharMap[6] = '6';
-		CharMap[7] = '7';
-		CharMap[8] = '8';
-		CharMap[9] = '9';
-		CharMap[10] = 'a';
-		CharMap[11] = 'b';
-		CharMap[12] = 'c';
-		CharMap[13] = 'd';
-		CharMap[14] = 'e';
-		CharMap[15] = 'f';
-		ReturnValue += CharMap[ByteToEncode >> 4];
-		ReturnValue += CharMap[ByteToEncode % 16];
+		//std::unordered_map<uint8_t, char> CharMap(0);
+		ReturnValue += s_ByteToHexMap[ByteToEncode >> 4];
+		ReturnValue += s_ByteToHexMap[ByteToEncode % 16];
 		return(ReturnValue);
 	}
 	inline std::string HexEncodeInt(uint32_t IntToEncode)
@@ -169,6 +154,16 @@ namespace MBUtility
 		for (int i = 3; i >= 0; i--)
 		{
 			ReturnValue += HexEncodeByte(IntToEncode >> (8 * i));
+		}
+		return(ReturnValue);
+	}
+	inline std::string HexEncodeBytes(const void* BytesToEncode, size_t NumberOfBytes)
+	{
+		std::string ReturnValue = "";
+		uint8_t* ByteData = (uint8_t*)BytesToEncode;
+		for (size_t i = 0; i < NumberOfBytes; i++)
+		{
+			ReturnValue += HexEncodeByte(ByteData[i]);
 		}
 		return(ReturnValue);
 	}
