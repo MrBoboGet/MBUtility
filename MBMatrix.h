@@ -1,7 +1,7 @@
 #pragma once
 #include <vector>
 #include <iostream>
-#include <MBMathTemplateFunctions.h>
+#include "MBMathTemplateFunctions.h"
 #include <math.h>
 #include <cstdint>
 #include <exception>
@@ -773,9 +773,9 @@ namespace MBMath
 		}
 		friend MBDynamicVector3<T> operator*(MBDynamicMatrix4<T> LeftMatrix, MBDynamicVector3<T> RightVector)
 		{
-			MBMatrix4 NewRightMatrix(RightVector);
+			MBDynamicMatrix4 NewRightMatrix(RightVector);
 			NewRightMatrix = LeftMatrix * NewRightMatrix;
-			return(MBVector3(NewRightMatrix[0], NewRightMatrix[1], NewRightMatrix[2]));
+			return(MBDynamicVector3<T>(NewRightMatrix[0], NewRightMatrix[1], NewRightMatrix[2]));
 		}
 		T* GetContinousDataPointer()
 		{
@@ -874,7 +874,16 @@ namespace MBMath
 			(*this) = (*this) + RightVector;
 			return(*this);
 		}
-		MBStaticVector& operator-=(MBStaticVector const& RighVector)
+		MBStaticVector friend operator-(MBStaticVector const& LeftVector, MBStaticVector const& RightVector)
+		{
+			MBStaticVector ReturnValue;
+			for (size_t i = 0; i < C; i++)
+			{
+				ReturnValue[i] = LeftVector[i] - RightVector[i];
+			}
+			return(ReturnValue);
+		}
+		MBStaticVector& operator-=(MBStaticVector const& RightVector)
 		{
 			(*this) = (*this) - RightVector;
 			return(*this);
@@ -925,15 +934,6 @@ namespace MBMath
 			for (size_t i = 0; i < C; i++)
 			{
 				ReturnValue[i] = LeftVector[i] + RightVector[i];
-			}
-			return(ReturnValue);
-		}
-		MBStaticVector friend operator-(MBStaticVector const& LeftVector, MBStaticVector const& RightVector)
-		{
-			MBStaticVector ReturnValue;
-			for (size_t i = 0; i < C; i++)
-			{
-				ReturnValue[i] = LeftVector[i] - RightVector[i];
 			}
 			return(ReturnValue);
 		}
@@ -993,23 +993,23 @@ namespace MBMath
 		}
 		MBStaticVector3(MBStaticVector<T,3>&& VectorToSteal)
 		{
-			m_InternalArray[0] = std::move(VectorToSteal[0]);
-			m_InternalArray[1] = std::move(VectorToSteal[1]);
-			m_InternalArray[2] = std::move(VectorToSteal[2]);
+			this->m_InternalArray[0] = std::move(VectorToSteal[0]);
+			this->m_InternalArray[1] = std::move(VectorToSteal[1]);
+			this->m_InternalArray[2] = std::move(VectorToSteal[2]);
 		}
 		T& operator[](size_t Index)
 		{
-			return(m_InternalArray[Index]);
+			return(this->m_InternalArray[Index]);
 		}
 		T const& operator[](size_t Index) const
 		{
-			return(m_InternalArray[Index]);
+			return(this->m_InternalArray[Index]);
 		}
 		MBStaticVector3(T X,T Y,T Z)
 		{
-			m_InternalArray[0] = std::move(X);
-			m_InternalArray[1] = std::move(Y);
-			m_InternalArray[2] = std::move(Z);
+			this->m_InternalArray[0] = std::move(X);
+			this->m_InternalArray[1] = std::move(Y);
+			this->m_InternalArray[2] = std::move(Z);
 		}
 		void Rotate(double AngleToRotate, MBStaticVector3<T> const& SuppliedAxis)
 		{
@@ -1382,7 +1382,7 @@ namespace MBMath
 		}
 		const T* GetContinousData() const
 		{
-			return(m_InternalArray);
+			return(this->m_InternalArray);
 		}
 		T& operator()(size_t i, size_t j)
 		{

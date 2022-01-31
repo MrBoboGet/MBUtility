@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <memory>
+#include <cstring>
 namespace MBUtility
 {
 	class MBOctetInputStream
@@ -200,7 +201,7 @@ namespace MBUtility
 			{
 				m_OutputString->resize(m_OutputPosition + DataToWriteSize, 0);
 			}
-			std::memcpy(m_OutputString->data() + m_OutputPosition, DataToWrite, DataToWriteSize);
+			std::memcpy((void*)(m_OutputString->data() + m_OutputPosition), DataToWrite, DataToWriteSize);
 			m_OutputPosition += DataToWriteSize;
 			return(DataToWriteSize);
 		}

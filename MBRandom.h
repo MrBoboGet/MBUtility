@@ -1,3 +1,4 @@
+#pragma once
 #include <string>
 #define _CRT_RAND_S
 #if defined(WIN32) || defined(_WIN32)
