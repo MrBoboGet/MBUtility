@@ -78,7 +78,7 @@ namespace MBUtility
 			}
 			else
 			{
-				//nästa string är inte direkt från förra, vi adderar restesn
+				//nï¿½sta string ï¿½r inte direkt frï¿½n fï¿½rra, vi adderar restesn
 				ReturnValue += StringToParse.substr(ParseOffset+StringToRemove.size());
 				break;
 			}
@@ -100,7 +100,7 @@ namespace MBUtility
 			}
 			if (NextTargetString == ParseOffset + DuplicateString.size())
 			{
-				//den är precis bredvid
+				//den ï¿½r precis bredvid
 				ParseOffset = NextTargetString;
 				continue;
 			}
@@ -250,7 +250,7 @@ namespace MBUtility
 				ParseOffset += 1;
 				if (ParseOffset + 1 >= DataToDecode.size())
 				{
-					//ett error hände, vi kan inte korrekt URL decoda
+					//ett error hï¿½nde, vi kan inte korrekt URL decoda
 					*OutError = false;
 					break;
 				}
@@ -270,5 +270,36 @@ namespace MBUtility
 			}
 		}
 		return(ReturnValue);
+	}
+	inline std::string HexStringToBytes(const void* DataToConvert, size_t DataSize)
+	{
+		std::string ReturnValue = "";
+		size_t CurrentOffset = 0;
+		const uint8_t* ByteData = (const uint8_t*)DataToConvert;
+		bool DecodeError = true;
+		while (CurrentOffset < DataSize && DecodeError)
+		{
+			if (ByteData[CurrentOffset] == ' ')
+			{
+				CurrentOffset += 1;
+				continue;
+			}
+			if (CurrentOffset + 1 >= DataSize)
+			{
+				DecodeError = false;
+				break;
+			}
+			ReturnValue += HexValueToByte(ByteData[CurrentOffset], ByteData[CurrentOffset + 1],&DecodeError);
+			CurrentOffset += 2;
+		}
+		if (!DecodeError)
+		{
+			ReturnValue = "";
+		}
+		return(ReturnValue);
+	}
+	inline std::string HexStringToBytes(std::string const& DataToConvert)
+	{
+		return(HexStringToBytes(DataToConvert.data(), DataToConvert.size()));
 	}
 };

@@ -18,4 +18,15 @@ namespace MBUtility
 	#define MBLinux
 #endif
 
+#ifdef __linux
+	#define MBLinux
+#endif
+
+#ifdef linux
+#define MBLinux
+#endif
+
+#ifdef MBLinux
+	#define MBPosix
+#endif
 }

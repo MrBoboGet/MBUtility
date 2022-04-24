@@ -30,6 +30,10 @@ namespace MBUtility
 
 	public:
 		virtual size_t Write(const void* DataToWrite, size_t DataToWriteSize) = 0;
+		virtual void Flush()
+		{
+
+		}
 		virtual ~MBOctetOutputStream()
 		{
 
@@ -41,6 +45,21 @@ namespace MBUtility
 		virtual uintmax_t SetOutputPosition(uintmax_t NewOutputPosition) = 0;
 		virtual uintmax_t GetOutputPosition() = 0;
 	};
+
+
+
+
+
+
+
+
+
+
+	/*
+	SEEK_SET
+	SEEK_CUR
+	SEEK_END
+	*/
 	class MBSearchableInputStream : public MBOctetInputStream
 	{
 	public:
@@ -71,7 +90,11 @@ namespace MBUtility
 			m_ReferenceOutput = OutputStream;
 			m_UseReference = true;
 		}
-
+		void Flush() override
+		{
+			std::ofstream* AssociatedFile = p_GetOutputStream();
+			AssociatedFile->flush();
+		}
 		size_t Write(const void* DataToWrite, size_t DataToWriteSize) override
 		{
 			std::ofstream* AssociatedFile = p_GetOutputStream();
@@ -236,10 +259,11 @@ namespace MBUtility
 		{
 			size_t BytesToRead = std::min(RequestedBytes, m_BufferSize - m_ReadOffset);
 			uint8_t* OutBuffer = (uint8_t*)Buffer;
-			for (size_t i = 0; i < RequestedBytes; i++)
-			{
-				OutBuffer[i] = m_BufferToReadFrom[i + m_ReadOffset];
-			}
+			//for (size_t i = 0; i < BytesToRead; i++)
+			//{
+			//	OutBuffer[i] = m_BufferToReadFrom[i + m_ReadOffset];
+			//}
+			std::memcpy(Buffer, m_BufferToReadFrom + m_ReadOffset, BytesToRead);
 			m_ReadOffset += BytesToRead;
 			return(BytesToRead);
 		}
