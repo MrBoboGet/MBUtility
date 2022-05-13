@@ -7,6 +7,13 @@
 #include <stdexcept>
 #include <memory>
 #include <cstring>
+
+#include "MBCompileDefinitions.h"
+
+#if MBCppVersion >= 16
+#include <filesystem>
+#endif // 
+
 namespace MBUtility
 {
 	class MBOctetInputStream
@@ -90,6 +97,13 @@ namespace MBUtility
 			m_ReferenceOutput = OutputStream;
 			m_UseReference = true;
 		}
+#if MBCppVersion >= 16
+		MBFileOutputStream(std::filesystem::path const& Path)
+		{
+			//m_StreamObject = std::ifstream(Path.c_str(), std::ios::binary | std::ios::in);
+			m_FileOutput = std::ofstream(Path.c_str(), std::ios::binary | std::ios::out);
+		}
+#endif // 
 		void Flush() override
 		{
 			std::ofstream* AssociatedFile = p_GetOutputStream();
@@ -99,7 +113,7 @@ namespace MBUtility
 		{
 			std::ofstream* AssociatedFile = p_GetOutputStream();
 			AssociatedFile->write((const char*)DataToWrite, DataToWriteSize);
-			return(0);
+			return(DataToWriteSize);
 		}
 		uintmax_t SetOutputPosition(uintmax_t NewOutputPosition) override
 		{
@@ -151,6 +165,14 @@ namespace MBUtility
 		{
 			m_StreamObject = std::ifstream(FilePath, std::ios::binary | std::ios::in);
 		}
+#if MBCppVersion >= 16
+		MBFileInputStream(std::filesystem::path const& Path)
+		{
+			m_StreamObject = std::ifstream(Path.c_str(), std::ios::binary | std::ios::in);
+		}
+#endif // 
+
+
 		MBFileInputStream(std::ifstream&& FileToSteal)
 		{
 			m_StreamObject = std::move(FileToSteal);

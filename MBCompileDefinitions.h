@@ -10,6 +10,17 @@ namespace MBUtility
 #endif // _WIN32
 
 	}
+
+//Hack, assume C17
+#define MBCpp17
+#define MBCppVersion 17
+
+#if __cplusplus == 201703L
+#define MBCpp17
+#define MBCppVersion 17
+#endif
+
+
 #ifdef _WIN32
 	#define MBWindows
 #endif // _WIN32
