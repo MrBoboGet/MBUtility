@@ -17,6 +17,7 @@ namespace MBUtility
 		std::string Name;
 		FileSystemType Type = FileSystemType::Null;
 		uint64_t Size = 0;
+		uint64_t LastWriteTime = 0;
 	};
 	enum class FilesystemError
 	{
@@ -49,6 +50,7 @@ namespace MBUtility
 		std::filesystem::path m_CurrentDirectory;
 	public:
 		OS_Filesystem(std::string const& User, std::filesystem::path StartDirectory);
+		OS_Filesystem();
 		//Error Open(std::string const& User, std::filesystem::path StartDirectory);?
 		virtual std::string GetCurrentPath();
 		virtual FilesystemError ChangeDirectory(std::string const& NewDirectory) override;
