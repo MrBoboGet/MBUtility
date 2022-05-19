@@ -1,7 +1,8 @@
+#pragma once
 #include "MBInterfaces.h"
 #include "MBErrorHandling.h"
 
-#include <Filesystem>
+#include <filesystem>
 namespace MBUtility
 {
 	enum class FileSystemType

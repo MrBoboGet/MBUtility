@@ -70,11 +70,12 @@ namespace MBUtility
 	{
 		FilesystemError ReturnValue = FilesystemError::Ok;
 		std::error_code Error;
-		std::filesystem::path NewPath = m_CurrentDirectory / NewDirectory;
+		std::filesystem::path NewPath = std::filesystem::canonical(m_CurrentDirectory / NewDirectory);
 		if (!std::filesystem::exists(NewPath) || !std::filesystem::is_directory(NewPath))
 		{
 			return FilesystemError::EntryDoesntExist;
 		}
+
 		m_CurrentDirectory = NewPath;
 		return(ReturnValue);
 	}
@@ -93,7 +94,10 @@ namespace MBUtility
 			return(ReturnValue);
 		}
 		ReturnValue.Name = i_PathToUTF8(Entry.path().filename());
-		ReturnValue.Size = Entry.file_size();
+		if (Entry.is_regular_file())
+		{
+			ReturnValue.Size = Entry.file_size();
+		}
 		ReturnValue.Type = i_STDFSTypeToMBFSType(Entry.status().type());
 		ReturnValue.LastWriteTime = p_GetPathWriteTime(Entry);
 		return(ReturnValue);
@@ -123,7 +127,10 @@ namespace MBUtility
 		{
 			FSObjectInfo NewInfo;
 			NewInfo.Name = i_PathToUTF8(Entry.path().filename());
-			NewInfo.Size = Entry.file_size();
+			if (Entry.is_regular_file())
+			{
+				NewInfo.Size = Entry.file_size();
+			}
 			NewInfo.Type = i_STDFSTypeToMBFSType(Entry.status().type());
 			NewInfo.LastWriteTime = p_GetPathWriteTime(Entry);
 			ReturnValue.push_back(std::move(NewInfo));
@@ -142,12 +149,16 @@ namespace MBUtility
 		}
 		//TODO check for acces rights
 		//TODO update MBFileInput stream to include std::filesystem path
-		return(std::unique_ptr<MBUtility::MBFileInputStream>(new MBUtility::MBFileInputStream(AbsolutePath.c_str())));
+		return(std::unique_ptr<MBUtility::MBFileInputStream>(new MBUtility::MBFileInputStream(AbsolutePath)));
 	}
 	std::unique_ptr<MBUtility::MBSearchableOutputStream> OS_Filesystem::GetFileOutputStream(std::string const& FilePath, FilesystemError* OutError)
 	{
 		std::unique_ptr<MBUtility::MBOctetOutputStream> ReturnValue;
 		std::filesystem::path AbsolutePath = m_CurrentDirectory / FilePath;
+		if (!std::filesystem::exists(AbsolutePath.parent_path()))
+		{
+			std::filesystem::create_directories(AbsolutePath.parent_path());
+		}
 		//TODO check for acces rights
 		//TODO update MBFileInput stream to include std::filesystem path
 		return(std::unique_ptr<MBUtility::MBFileOutputStream>(new MBUtility::MBFileOutputStream(AbsolutePath.c_str())));

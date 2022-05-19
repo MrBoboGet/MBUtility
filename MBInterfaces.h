@@ -330,4 +330,20 @@ namespace MBUtility
 	public:
 		virtual bool VerifyUser(std::string const& Username, std::string const& Password) = 0;
 	};
+
+	inline void WriteData(MBOctetInputStream& Input,MBOctetOutputStream& Output)
+	{
+		constexpr size_t ReadChunkSize = 4096;
+		uint8_t Buffer[ReadChunkSize];
+		while (true)
+		{
+			size_t ReadBytes = Input.Read(Buffer, ReadChunkSize);
+			Output.Write(Buffer, ReadBytes);
+			if (ReadBytes < ReadChunkSize)
+			{
+				break;
+			}
+		}
+		Output.Flush();
+	}
 }
