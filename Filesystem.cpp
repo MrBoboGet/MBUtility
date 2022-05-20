@@ -71,7 +71,7 @@ namespace MBUtility
 		FilesystemError ReturnValue = FilesystemError::Ok;
 		std::error_code Error;
 		std::filesystem::path NewPath = std::filesystem::canonical(m_CurrentDirectory / NewDirectory);
-		if (!std::filesystem::exists(NewPath) || !std::filesystem::is_directory(NewPath))
+		if (!std::filesystem::exists(NewPath,Error) || !std::filesystem::is_directory(NewPath,Error))
 		{
 			return FilesystemError::EntryDoesntExist;
 		}
@@ -134,6 +134,16 @@ namespace MBUtility
 			NewInfo.Type = i_STDFSTypeToMBFSType(Entry.status().type());
 			NewInfo.LastWriteTime = p_GetPathWriteTime(Entry);
 			ReturnValue.push_back(std::move(NewInfo));
+		}
+		return(ReturnValue);
+	}
+	FilesystemError OS_Filesystem::Exists(std::string const& Path)
+	{
+		FilesystemError ReturnValue = FilesystemError::Ok;
+		std::error_code OSError;
+		if (!std::filesystem::exists(m_CurrentDirectory/Path,OSError))
+		{
+			ReturnValue = FilesystemError::EntryDoesntExist;
 		}
 		return(ReturnValue);
 	}

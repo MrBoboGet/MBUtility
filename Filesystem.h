@@ -41,6 +41,7 @@ namespace MBUtility
 		virtual FilesystemError ChangeDirectory(std::string const& NewDirectory) = 0;
 		virtual FSObjectInfo GetInfo(std::string const& Path, FilesystemError* OutError) = 0;
 		virtual std::vector<FSObjectInfo> ListDirectory(std::string const& Path, FilesystemError* OutError) = 0;
+		virtual FilesystemError Exists(std::string const& Path) = 0;
 		virtual std::unique_ptr<MBUtility::MBSearchableInputStream> GetFileInputStream(std::string const& FilePath, FilesystemError* OutError) = 0;
 		virtual std::unique_ptr<MBUtility::MBSearchableOutputStream> GetFileOutputStream(std::string const& FilePath, FilesystemError* OutError) = 0;
 	};
@@ -57,6 +58,7 @@ namespace MBUtility
 		virtual FilesystemError ChangeDirectory(std::string const& NewDirectory) override;
 		virtual FSObjectInfo GetInfo(std::string const& Path, FilesystemError* OutError) override;
 		virtual std::vector<FSObjectInfo> ListDirectory(std::string const& Path, FilesystemError* OutError) override;
+		virtual FilesystemError Exists(std::string const& Path) override;
 		virtual std::unique_ptr<MBUtility::MBSearchableInputStream> GetFileInputStream(std::string const& FilePath, FilesystemError* OutError) override;
 		virtual std::unique_ptr<MBUtility::MBSearchableOutputStream> GetFileOutputStream(std::string const& FilePath, FilesystemError* OutError) override;
 	};
