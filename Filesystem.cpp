@@ -2,6 +2,13 @@
 #include <map>
 #include <filesystem>
 #include <codecvt>
+
+#ifdef MBPosix
+#define _FILE_OFFSET_BITS = 64
+#include <sys/stat.h>
+#endif // 
+
+
 namespace MBUtility
 {
 	std::string i_PathToUTF8(std::filesystem::path const& PathToConvert)
@@ -17,6 +24,18 @@ namespace MBUtility
 		return(ReturnValue);
 	}
 
+	uint64_t i_GetFilesize(std::filesystem::path const& PathToCheck)
+	{
+#ifdef MBWindows
+		return(std::filesystem::file_size(PathToCheck));
+#else
+		struct stat64 FileStats;
+		stat64(PathToCheck.c_str(), &FileStats);
+		//std::cout << size_t(FileStats.st_size) << std::endl;
+		return(FileStats.st_size);
+#endif
+
+	}
 
 	const char* i_FSErrorTypeToStringMap[] =
 	{
@@ -63,14 +82,14 @@ namespace MBUtility
 	}
 	std::string OS_Filesystem::GetCurrentPath()
 	{
-		std::string ReturnValue = i_PathToUTF8(std::filesystem::canonical(m_CurrentDirectory));
+		std::string ReturnValue = i_PathToUTF8(m_CurrentDirectory.lexically_normal());
 		return(ReturnValue);
 	}
 	FilesystemError OS_Filesystem::ChangeDirectory(std::string const& NewDirectory)
 	{
 		FilesystemError ReturnValue = FilesystemError::Ok;
 		std::error_code Error;
-		std::filesystem::path NewPath = std::filesystem::canonical(m_CurrentDirectory / NewDirectory);
+		std::filesystem::path NewPath = (m_CurrentDirectory / NewDirectory).lexically_normal();
 		if (!std::filesystem::exists(NewPath,Error) || !std::filesystem::is_directory(NewPath,Error))
 		{
 			return FilesystemError::EntryDoesntExist;
@@ -96,7 +115,7 @@ namespace MBUtility
 		ReturnValue.Name = i_PathToUTF8(Entry.path().filename());
 		if (Entry.is_regular_file())
 		{
-			ReturnValue.Size = Entry.file_size();
+			ReturnValue.Size = i_GetFilesize(Entry.path()); //Entry.file_size();
 		}
 		ReturnValue.Type = i_STDFSTypeToMBFSType(Entry.status().type());
 		ReturnValue.LastWriteTime = p_GetPathWriteTime(Entry);
@@ -129,7 +148,7 @@ namespace MBUtility
 			NewInfo.Name = i_PathToUTF8(Entry.path().filename());
 			if (Entry.is_regular_file())
 			{
-				NewInfo.Size = Entry.file_size();
+				NewInfo.Size = i_GetFilesize(Entry.path()); //Entry.file_size();
 			}
 			NewInfo.Type = i_STDFSTypeToMBFSType(Entry.status().type());
 			NewInfo.LastWriteTime = p_GetPathWriteTime(Entry);
