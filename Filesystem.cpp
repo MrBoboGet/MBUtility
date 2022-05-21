@@ -24,6 +24,17 @@ namespace MBUtility
 		return(ReturnValue);
 	}
 
+	uint64_t i_GetModificationTime(std::filesystem::path const& PathToStat)
+	{
+#ifdef MBWindows
+		return(std::filesystem::last_write_time(PathToStat).time_since_epoch().count());
+#else
+		struct stat64 FileStats;
+		stat64(PathToStat.c_str(), &FileStats);
+		//std::cout << size_t(FileStats.st_size) << std::endl;
+		return(FileStats.st_mtime);
+#endif
+	}
 	uint64_t i_GetFilesize(std::filesystem::path const& PathToCheck)
 	{
 #ifdef MBWindows
@@ -62,6 +73,11 @@ namespace MBUtility
 			ReturnValue = FileSystemType::Directory;
 		}
 		else if (TypeToConvert == std::filesystem::file_type::regular)
+		{
+			ReturnValue = FileSystemType::File;
+		}
+		//TODO *turbo hack*. std::filesystem::file_type is for some reasons unknown for files larger than 4gig...
+		else if (TypeToConvert == std::filesystem::file_type::unknown)
 		{
 			ReturnValue = FileSystemType::File;
 		}
@@ -105,20 +121,20 @@ namespace MBUtility
 	FSObjectInfo OS_Filesystem::GetInfo(std::string const& Path, FilesystemError* OutError)
 	{
 		FSObjectInfo ReturnValue;
-		std::error_code Error;
-		std::filesystem::directory_entry Entry = std::filesystem::directory_entry(m_CurrentDirectory / Path, Error);
-		if (Error)
+		//std::error_code Error;
+		//std::filesystem::directory_entry Entry = std::filesystem::directory_entry(m_CurrentDirectory / Path, Error);
+		//if (Error)
+		//{
+		//	*OutError = FilesystemError::Unknown;
+		//	return(ReturnValue);
+		//}
+		ReturnValue.Name = i_PathToUTF8(std::filesystem::path(Path).filename());
+		if (std::filesystem::status(Path).type() == std::filesystem::file_type::regular || std::filesystem::status(Path).type() == std::filesystem::file_type::unknown)
 		{
-			*OutError = FilesystemError::Unknown;
-			return(ReturnValue);
+			ReturnValue.Size = i_GetFilesize(Path); //Entry.file_size();
 		}
-		ReturnValue.Name = i_PathToUTF8(Entry.path().filename());
-		if (Entry.is_regular_file())
-		{
-			ReturnValue.Size = i_GetFilesize(Entry.path()); //Entry.file_size();
-		}
-		ReturnValue.Type = i_STDFSTypeToMBFSType(Entry.status().type());
-		ReturnValue.LastWriteTime = p_GetPathWriteTime(Entry);
+		ReturnValue.Type = i_STDFSTypeToMBFSType(std::filesystem::status(Path).type());
+		ReturnValue.LastWriteTime = i_GetModificationTime(Path); //p_GetPathWriteTime(Entry);
 		return(ReturnValue);
 	}
 	std::vector<FSObjectInfo> OS_Filesystem::ListDirectory(std::string const& Path, FilesystemError* OutError)
@@ -146,12 +162,12 @@ namespace MBUtility
 		{
 			FSObjectInfo NewInfo;
 			NewInfo.Name = i_PathToUTF8(Entry.path().filename());
-			if (Entry.is_regular_file())
+			if (Entry.is_regular_file() || std::filesystem::status(Entry.path()).type() == std::filesystem::file_type::unknown)
 			{
 				NewInfo.Size = i_GetFilesize(Entry.path()); //Entry.file_size();
 			}
 			NewInfo.Type = i_STDFSTypeToMBFSType(Entry.status().type());
-			NewInfo.LastWriteTime = p_GetPathWriteTime(Entry);
+			NewInfo.LastWriteTime = i_GetModificationTime(Entry.path());//p_GetPathWriteTime(Entry);
 			ReturnValue.push_back(std::move(NewInfo));
 		}
 		return(ReturnValue);
@@ -171,7 +187,7 @@ namespace MBUtility
 		std::unique_ptr<MBUtility::MBSearchableInputStream> ReturnValue;
 		std::filesystem::path AbsolutePath = m_CurrentDirectory / FilePath;
 		std::error_code Error;
-		if (!std::filesystem::exists(AbsolutePath, Error) || !std::filesystem::is_regular_file(AbsolutePath))
+		if (!std::filesystem::exists(AbsolutePath, Error) || (!std::filesystem::is_regular_file(AbsolutePath) && std::filesystem::status(AbsolutePath).type() != std::filesystem::file_type::unknown))
 		{
 			*OutError = FilesystemError::EntryDoesntExist;
 			return(ReturnValue);
