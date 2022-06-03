@@ -170,7 +170,7 @@ namespace MBUtility
 	inline char HexValueToByte(char FirstCharacter, char SecondCharacter,bool* OutError)
 	{
 		char ReturnValue = 0;
-		unsigned char Characters[2] = { FirstCharacter,SecondCharacter };
+		char Characters[2] = { FirstCharacter,SecondCharacter };
 		for (size_t i = 0; i < 2; i++)
 		{
 			if (Characters[i] >= 71)
