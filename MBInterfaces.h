@@ -346,4 +346,25 @@ namespace MBUtility
 		}
 		Output.Flush();
 	}
+
+    class LineRetriever
+    {
+        private:
+            MBUtility::MBOctetInputStream* m_InputStream = nullptr;
+            std::string m_CurrentLine;
+            std::string m_Buffer;
+            size_t m_BufferOffset = 0;
+            bool m_Finished = false;
+            bool m_StreamFinished = false;
+            bool m_LineBuffered = false;
+        public:
+            LineRetriever(MBUtility::MBOctetInputStream* InputStream);
+            bool Finished();
+            bool GetLine(std::string& OutLine);
+            void DiscardLine();
+            std::string& PeekLine();
+
+    };
+
+
 }
