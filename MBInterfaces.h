@@ -294,6 +294,12 @@ namespace MBUtility
 
 		}
 	};
+
+    class TerminalOutput : public MBOctetOutputStream
+    {
+    public:
+        size_t Write(const void *DataToWrite, size_t DataToWriteSize) override;
+    };
 	//class MBFileInputStream : public MBOctetInputStream
 	//{
 	//private:
@@ -346,6 +352,15 @@ namespace MBUtility
 		}
 		Output.Flush();
 	}
+    inline void WriteData(MBOctetOutputStream& Output,std::string const& DataToWrite)
+    {
+        Output.Write(DataToWrite.data(),DataToWrite.size());
+    }
+    inline void WriteData(MBOctetOutputStream& Output,const char* DataToWrite)
+    {
+        size_t StringLength = std::strlen(DataToWrite); 
+        Output.Write(DataToWrite,StringLength);
+    }
 
     class LineRetriever
     {

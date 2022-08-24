@@ -1,1 +1,30 @@
-{"Dependancies":[],"ExtraIncludes":[],"Language":"C++","Targets":{"MBUtility":{"Sources":["/Filesystem.cpp","/MBCompileDefinitions.cpp","/MBErrorHandling.cpp","/MBFiles.cpp","/MBMatrix.cpp","/MBUtilityTest.cpp"],"TargetType":"Library"}}}
+{
+    "Dependancies": 
+    [
+
+    ],
+    "ExtraIncludes": 
+    [
+
+    ],
+    "Language":     "C++",
+    "Standard":     "C++17",
+    "Targets": 
+    {
+        "MBUtility": 
+        {
+            "OutputName":             "MBUtility",
+            "Sources": 
+            [
+                "/Filesystem.cpp",
+                "/MBCompileDefinitions.cpp",
+                "/MBErrorHandling.cpp",
+                "/MBFiles.cpp",
+                "/MBInterfaces.cpp",
+                "/MBMatrix.cpp",
+                "/MBUtilityTest.cpp"
+            ],
+            "TargetType":             "Library"
+        }
+    }
+}

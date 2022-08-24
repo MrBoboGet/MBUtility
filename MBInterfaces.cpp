@@ -1,5 +1,6 @@
 #include "MBInterfaces.h"
 
+#include <iostream>
 namespace MBUtility
 {
     //BEGIN LineRetriever
@@ -92,4 +93,12 @@ namespace MBUtility
         return(m_CurrentLine);
     }
     //END LineRetriever
+
+    //BEGIN TerminalOutput
+    size_t TerminalOutput::Write(const void *DataToWrite, size_t DataToWriteSize)
+    {
+        std::cout.write((const char*) DataToWrite,DataToWriteSize);
+        return(DataToWriteSize);
+    }
+    //END TerminalOutput
 }
