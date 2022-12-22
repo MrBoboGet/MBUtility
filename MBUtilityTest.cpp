@@ -1,7 +1,86 @@
 #include "MBMatrix.h"
 #include <time.h>
-int main()
+#include <assert.h>
+#include <type_traits>
+#include "MBVector.h"
+#include <variant>
+
+void TestVector_Trivial()
 {
+    MBUtility::MBVector<int,4> TestVector; 
+    TestVector.push_back(0);
+    TestVector.push_back(1);
+    TestVector.push_back(2);
+    TestVector.push_back(3);
+    assert(TestVector[0] == 0);
+    assert(TestVector[1] == 1);
+    assert(TestVector[2] == 2);
+    assert(TestVector[3] == 3);
+    MBUtility::MBVector<int,4> TestCopy = TestVector;
+    assert(TestVector[0] == 0);
+    assert(TestVector[1] == 1);
+    assert(TestVector[2] == 2);
+    assert(TestVector[3] == 3);
+    assert(TestCopy[0] == 0);
+    assert(TestCopy[1] == 1);
+    assert(TestCopy[2] == 2);
+    assert(TestCopy[3] == 3);
+    TestCopy.push_back(5);
+    TestVector.push_back(5);
+    auto TestCopyDynamic = TestCopy;
+    assert(TestCopy == TestVector);
+    assert(TestCopyDynamic == TestCopy);
+    MBUtility::MBVector<int,4> TestCopyAssign;
+    TestCopyAssign = TestCopyDynamic;
+    assert(TestCopyAssign == TestCopyDynamic);
+
+    std::cout<<TestVector[0]<<std::endl;
+}
+void TestVector()
+{
+    MBUtility::MBVector<std::string,4> TestVector; 
+    TestVector.push_back("test1");
+    TestVector.push_back("test2");
+    TestVector.push_back("test3");
+    TestVector.push_back("test4");
+    assert(TestVector[0] == "test1");
+    assert(TestVector[1] == "test2");
+    assert(TestVector[2] == "test3");
+    assert(TestVector[3] == "test4");
+    MBUtility::MBVector<std::string,4> TestCopy = TestVector;
+    assert(TestVector[0] == "test1");
+    assert(TestVector[1] == "test2");
+    assert(TestVector[2] == "test3");
+    assert(TestVector[3] == "test4");
+    assert(TestCopy[0] == "test1");
+    assert(TestCopy[1] == "test2");
+    assert(TestCopy[2] == "test3");
+    assert(TestCopy[3] == "test4");
+    TestCopy.push_back("Test5");
+    TestVector.push_back("Test5");
+    auto TestCopyDynamic = TestCopy;
+    assert(TestCopy == TestVector);
+    assert(TestCopyDynamic == TestCopy);
+    MBUtility::MBVector<std::string,4> TestCopyAssign;
+    TestCopyAssign = TestCopyDynamic;
+    assert(TestCopyAssign == TestCopyDynamic);
+
+    std::cout<<TestVector[0]<<std::endl;
+    TestVector_Trivial();
+}
+void MetaTests()
+{
+    std::cout<<"Variant with trivial types trivial: "<<std::is_trivially_copyable<std::variant<char,float,char*>>::value<<std::endl;
+    std::cout<<"Variant with non-trivial types trivial: "<<std::is_trivially_copyable<std::variant<std::vector<char>,float,char*>>::value<<std::endl;
+    std::cout<<"std::string size "<<sizeof(std::string)<<std::endl;
+    std::cout<<"MBVector size "<<sizeof(MBUtility::MBVector<char,4>)<<std::endl;
+    std::cout<<"MBVector size "<<sizeof(MBUtility::MBVector<char,4,char>)<<std::endl;
+}
+
+int main(int argc,char* argv[])
+{
+    TestVector();
+    MetaTests();
 	MBMath::MBDynamicMatrix<size_t> DynamicFib = MBMath::MBDynamicMatrix<size_t>(2);
 	MBMath::MBStaticMatrix<size_t, 2, 2> StaticFib;
 	StaticFib(0, 0) = 3;
