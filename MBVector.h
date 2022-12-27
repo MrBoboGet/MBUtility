@@ -51,7 +51,7 @@ namespace MBUtility
         {
             if(NewCapacity > m_Capacity)
             {
-                IndexType NewBufferSize = m_Capacity*GrowthFactor;
+                IndexType NewBufferSize = std::max(m_Capacity*GrowthFactor,NewCapacity*2);
                 T* NewBuffer = m_Allocator.allocate(NewBufferSize);
                 T* PreviousBuffer = p_Data();
                 if constexpr(std:: is_trivially_copyable<T>::value)
@@ -66,7 +66,7 @@ namespace MBUtility
                         PreviousBuffer[i].~T();
                     } 
                 }
-                if(m_Capacity > BufferSize)
+                if(m_Capacity > BufferSize && m_DynamicBuffer != nullptr)
                 {
                     m_Allocator.deallocate(p_Data(),m_Capacity);
                 }
@@ -186,6 +186,16 @@ namespace MBUtility
         {
             swap(VectorToSwap,*this);       
         }
+        //TODO might have room for optimization
+        MBVector(IndexType Count, T const& Value = T())
+        {
+            p_Reserve(Count);
+            m_Size = Count;
+            for(auto It = 0; It < Count;It++)
+            {
+                new(p_Data()+It) T(Value);           
+            }
+        }
         MBVector(MBVector const& VectorToCopy)
         {
             p_Reserve(VectorToCopy.m_Size);
@@ -205,14 +215,13 @@ namespace MBUtility
         }
         ~MBVector()
         {
+            T* Data = p_Data();
             if constexpr(!std::is_trivially_copyable<T>::value)
             {
-                return;
-            }
-            T* Data = p_Data();
-            for(IndexType i = 0; i < m_Size;i++)
-            {
-                Data[i].~T();
+                for(IndexType i = 0; i < m_Size;i++)
+                {
+                    Data[i].~T();
+                }
             }
             if(m_Size > BufferSize)
             {

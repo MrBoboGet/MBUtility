@@ -5,3 +5,5 @@
 /MBPM_FileInfo
 /MBPM*
 /*swp
+/.*
+/compile_commands.json

@@ -81,8 +81,10 @@ int main(int argc,char* argv[])
 {
     TestVector();
     MetaTests();
-	MBMath::MBDynamicMatrix<size_t> DynamicFib = MBMath::MBDynamicMatrix<size_t>(2);
+    std::cout<<"???"<<std::endl;
 	MBMath::MBStaticMatrix<size_t, 2, 2> StaticFib;
+    std::cout<<"???2"<<std::endl;
+	MBMath::MBDynamicMatrix<size_t> DynamicFib = MBMath::MBDynamicMatrix<size_t>(2);
 	StaticFib(0, 0) = 3;
 	StaticFib(0, 1) = -1;
 	StaticFib(1, 0) = 1;
@@ -95,6 +97,8 @@ int main(int argc,char* argv[])
 
 	MBMath::MBStaticMatrix<size_t, 2, 2> CurrentStatic = StaticFib;
 	MBMath::MBDynamicMatrix<size_t> CurrentDynamic = DynamicFib;
+	std::cout << CurrentStatic << std::endl;
+	std::cout << CurrentDynamic << std::endl;
 	const size_t N = 10000;
 	clock_t Timer = clock();
 	for (size_t i = 0; i < N; i++)
@@ -146,7 +150,7 @@ int main(int argc,char* argv[])
 	/*
 	MatrixTest = {{1, 2, 3, 4}, {4, 3, 2, 1}, {3, 1, 2, 1}, {4, 4, 1, 1}}
 	*/
-	MBMath::MBDynamicMatrix4<float> Dynamic4MatrixTest(4);
+	MBMath::MBDynamicMatrix4<float> Dynamic4MatrixTest;
 	MBMath::MBStaticMatrix4<float> StaticMatrix4Test;
 	Dynamic4MatrixTest(0, 0) = 1;
 	Dynamic4MatrixTest(0, 1) = 2;
@@ -181,6 +185,9 @@ int main(int argc,char* argv[])
 	StaticMatrix4Test(3, 1) = 4;
 	StaticMatrix4Test(3, 2) = 1;
 	StaticMatrix4Test(3, 3) = 1;
+	std::cout<< Dynamic4MatrixTest.GetMatrixData()<<std::endl;
+	std::cout<< StaticMatrix4Test <<std::endl;
+
 	std::cout<< Dynamic4MatrixTest.GetMatrixData().Determinant() <<std::endl;
 	std::cout<< StaticMatrix4Test.GetDeterminant() <<std::endl;
 

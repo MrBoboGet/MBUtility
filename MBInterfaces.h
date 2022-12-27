@@ -361,6 +361,16 @@ namespace MBUtility
         size_t StringLength = std::strlen(DataToWrite); 
         Output.Write(DataToWrite,StringLength);
     }
+    inline MBOctetOutputStream& operator<<(MBOctetOutputStream& Lhs,std::string const& DataToWrite)
+    {
+        WriteData(Lhs,DataToWrite);
+        return(Lhs);     
+    }
+    inline MBOctetOutputStream& operator<<(MBOctetOutputStream& Lhs,const char* DataToWrite)
+    {
+        WriteData(Lhs,DataToWrite);
+        return(Lhs);     
+    }
 
     class LineRetriever
     {
