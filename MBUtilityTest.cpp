@@ -4,6 +4,7 @@
 #include <type_traits>
 #include "MBVector.h"
 #include <variant>
+#include "Optional.h"
 
 void TestVector_Trivial()
 {
@@ -76,14 +77,42 @@ void MetaTests()
     std::cout<<"MBVector size "<<sizeof(MBUtility::MBVector<char,4>)<<std::endl;
     std::cout<<"MBVector size "<<sizeof(MBUtility::MBVector<char,4,char>)<<std::endl;
 }
+void OptionalTest()
+{
+    MBUtility::Optional<std::string> Test;        
+    if(Test.IsInitalized())
+    {
+        std::cout<<"Test was initialized, should not be "<<std::endl;
+    }
+    Test = "asdasd";
+    if(!Test.IsInitalized())
+    {
+        std::cout<<"Test should be initialized"<<std::endl;   
+    }
+    assert(Test.Value() == "asdasd");
+    Test = MBUtility::Optional<std::string>("123123");
+    assert(Test.IsInitalized());
+    assert(Test.Value() == "123123");
+    Test = MBUtility::Optional<std::string>();
+    assert(Test.IsInitalized() == false);
+    Test = "asdasd";
+    MBUtility::Optional<std::string> Test2 = Test;
+    assert(Test.IsInitalized() && Test.IsInitalized());
+    assert(Test2.Value() == Test.Value());
+    MBUtility::Optional<std::string> Test3;
+    assert(Test3.IsInitalized() == false);
+    Test3 = Test2;
+    assert(Test3.IsInitalized());
+    assert(Test2.IsInitalized());
+    assert(Test3.Value() == Test2.Value() && Test2.Value() == "asdasd");
+}
 
 int main(int argc,char* argv[])
 {
     TestVector();
     MetaTests();
-    std::cout<<"???"<<std::endl;
+    OptionalTest();
 	MBMath::MBStaticMatrix<size_t, 2, 2> StaticFib;
-    std::cout<<"???2"<<std::endl;
 	MBMath::MBDynamicMatrix<size_t> DynamicFib = MBMath::MBDynamicMatrix<size_t>(2);
 	StaticFib(0, 0) = 3;
 	StaticFib(0, 1) = -1;
