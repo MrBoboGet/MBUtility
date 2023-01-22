@@ -299,6 +299,7 @@ namespace MBUtility
     {
     public:
         size_t Write(const void *DataToWrite, size_t DataToWriteSize) override;
+        void Flush() override;
     };
 	//class MBFileInputStream : public MBOctetInputStream
 	//{

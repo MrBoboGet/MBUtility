@@ -100,5 +100,9 @@ namespace MBUtility
         std::cout.write((const char*) DataToWrite,DataToWriteSize);
         return(DataToWriteSize);
     }
+    void TerminalOutput::Flush() 
+    {
+        std::cout.flush();   
+    }
     //END TerminalOutput
 }
