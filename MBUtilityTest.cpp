@@ -5,7 +5,16 @@
 #include "MBVector.h"
 #include <variant>
 #include "Optional.h"
-
+#include <unordered_set>
+#include <unordered_map>
+#include "Meta.h"
+void MetaTest()
+{
+    std::cout<<"is vector"<<MBUtility::IsInstantiation<std::vector,std::unordered_set<int>>::value<<std::endl;
+    std::cout<<"is vector"<<MBUtility::IsInstantiation<std::vector,std::vector<std::string>>::value<<std::endl;
+    std::cout<<"is map"<<MBUtility::IsInstantiation<std::unordered_map,std::unordered_set<int>>::value<<std::endl;
+    std::cout<<"is map"<<MBUtility::IsInstantiation<std::unordered_map,std::unordered_map<int,int>>::value<<std::endl;
+}
 void TestVector_Trivial()
 {
     MBUtility::MBVector<int,4> TestVector; 
@@ -111,6 +120,7 @@ int main(int argc,char* argv[])
 {
     TestVector();
     MetaTests();
+    MetaTest();
     OptionalTest();
 	MBMath::MBStaticMatrix<size_t, 2, 2> StaticFib;
 	MBMath::MBDynamicMatrix<size_t> DynamicFib = MBMath::MBDynamicMatrix<size_t>(2);
