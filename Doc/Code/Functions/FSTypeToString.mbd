@@ -1,0 +1,6 @@
+//DocGen_Begin
+\table 1
+~ffffff std::~ ~00ff00 string~  ~ffff00 @[FSTypeToString](#FSTypeToString_0)~ ( ~afeeee @[TypeToConvert](#FSTypeToString_0#TypeToConvert)~ )
+&
+\end 1
+//DocGen_End

@@ -1,0 +1,8 @@
+//DocGen_Begin
+\table 1
+Public:&
+~00ff00 uint64_t~  ~ffff00 @[SetInputPosition](#SetInputPosition_0)~ (~00ff00 int64_t~  ~afeeee @[Offset](#SetInputPosition_0#Offset)~ ,~0000ff int~  ~afeeee @[whence](#SetInputPosition_0#whence)~ )
+&~00ff00 uint64_t~  ~ffff00 @[GetInputPosition](#GetInputPosition_0)~ ()
+&
+\end 1
+//DocGen_End

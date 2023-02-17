@@ -1,0 +1,30 @@
+%title MBUtility
+
+MBUtility is the "standard library" that is used by almost all of my projects.
+When functionality is needed by more than one library/program, and it's generic
+and lightweight enough so is that functionality moved to this library. 
+
+This library therefor contains a mix of various functionality, simple string
+operations, reading from files, and various interfaces that is used perhaps the
+most used. But this wide use also means that there are more strict restrictions
+on what can be included, which is desribed below.
+
+_# Inclusion conditions
+    
+    # Portable
+        
+        A program should be able to use this library without worrying whether or
+        not the library will compile, or work as intended on all platforms. 
+
+    # Pure
+
+        This library has to be a @[pure mbbbuild](/{MBBuild}#Pure).
+
+    # No other dependancies
+
+        MBUtility is the lowest common denominator for functionality. The need
+        to include another library most likely means that the functionality
+        added is more specific than it should be, or has more assumptions about
+        the available functionality than it should.
+     
+/#

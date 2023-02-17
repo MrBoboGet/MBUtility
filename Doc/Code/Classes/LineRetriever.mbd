@@ -1,0 +1,18 @@
+//DocGen_Begin
+\table 1
+Private:&
+~0000ff bool~  @[m_StreamFinished](#m_StreamFinished)
+&~0000ff bool~  @[m_Finished](#m_Finished)
+&~ffffff std::~ ~00ff00 string~  @[m_Buffer](#m_Buffer)
+& @[m_InputStream](#m_InputStream)
+&~00ff00 size_t~  @[m_BufferOffset](#m_BufferOffset)
+&~ffffff std::~ ~00ff00 string~  @[m_CurrentLine](#m_CurrentLine)
+&~0000ff bool~  @[m_LineBuffered](#m_LineBuffered)
+&Public:&
+~0000ff void~  ~ffff00 @[DiscardLine](#DiscardLine_0)~ ()
+&~0000ff bool~  ~ffff00 @[Finished](#Finished_0)~ ()
+&~0000ff bool~  ~ffff00 @[GetLine](#GetLine_0)~ (~ffffff std::~ ~00ff00 string~ \& ~afeeee @[OutLine](#GetLine_0#OutLine)~ )
+&~ffffff std::~ ~00ff00 string~ \& ~ffff00 @[PeekLine](#PeekLine_0)~ ()
+&
+\end 1
+//DocGen_End

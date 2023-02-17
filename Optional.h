@@ -26,10 +26,13 @@ namespace MBUtility
             }
             void p_DeInitilize()
             {
-                if(IsInitalized())
+                if constexpr(!std::is_trivially_destructible<T>::value)
                 {
-                    p_GetRef().~T();
-                    m_Initialised = false;
+                    if(IsInitalized())
+                    {
+                        p_GetRef().~T();
+                        m_Initialised = false;
+                    }
                 }
             }
         public:
@@ -37,9 +40,13 @@ namespace MBUtility
             {
                 
             }
-            Optional(T TypeToInitialzie)
+            Optional(T&& TypeToInitialzie) noexcept
             {
                 p_Initialize(std::move(TypeToInitialzie)); 
+            }
+            Optional(T const& TypeToInitialzie)
+            {
+                p_Initialize(TypeToInitialzie); 
             }
             Optional(Optional const& OptionalToCopy)
             {
@@ -48,45 +55,102 @@ namespace MBUtility
                     p_Initialize(OptionalToCopy.p_GetRef()); 
                 }
             }
-            Optional(Optional&& OptionalToCopy)
+            Optional(Optional&& OptionalToCopy) noexcept
             {
                 if(OptionalToCopy.IsInitalized())
                 {
                     p_Initialize(std::move(OptionalToCopy.p_GetRef())); 
                 }
             }
-            Optional& operator=(T ObjectToInsert)
+            Optional& operator=(T const& ObjectToInsert)
             {
                 if(IsInitalized())
                 {
-                    p_GetRef() = std::move(ObjectToInsert);
+                    p_GetRef() = ObjectToInsert;
                 }
                 else
                 {
-                    p_Initialize(std::move(ObjectToInsert)); 
+                    p_Initialize(ObjectToInsert); 
                 }
                 return(*this);
             }
-            Optional& operator=(Optional ObjectToInsert)
+            Optional& operator=(T&& ObjectToInsert) noexcept
             {
-                if(!ObjectToInsert.IsInitalized())
+                if(IsInitalized())
                 {
-                    if(m_Initialised)
-                    {
-                        p_DeInitilize();   
-                    }
-                    return(*this);
+                    p_GetRef() = ObjectToInsert;
                 }
                 else
                 {
-                    if(m_Initialised)
+                    p_Initialize(ObjectToInsert); 
+                }
+                return(*this);
+            }
+            Optional& operator=(Optional const& ObjectToInsert)
+            {
+                if(!std::is_trivially_copyable_v<T>)
+                {
+                    if(!ObjectToInsert.IsInitalized())
                     {
-                        p_GetRef() = std::move(ObjectToInsert.p_GetRef());
+                        if(m_Initialised)
+                        {
+                            p_DeInitilize();   
+                        }
+                        return(*this);
                     }
                     else
                     {
-                        p_Initialize(std::move(ObjectToInsert.p_GetRef()));
+                        if(m_Initialised)
+                        {
+                            p_GetRef() = ObjectToInsert.p_GetRef();
+                        }
+                        else
+                        {
+                            p_Initialize(ObjectToInsert.p_GetRef());
+                        }
                     }
+                }
+                else
+                {
+                    if(ObjectToInsert.m_Initialised)
+                    {
+                        std::memcpy(m_ObjectData,ObjectToInsert.m_ObjectData,sizeof(m_ObjectData));   
+                    }
+                    m_Initialised = ObjectToInsert.m_Initialised;
+                }
+                return(*this);
+            }
+            Optional& operator=(Optional&& ObjectToInsert) noexcept
+            {
+                if(!std::is_trivially_copyable_v<T>)
+                {
+                    if(!ObjectToInsert.IsInitalized())
+                    {
+                        if(m_Initialised)
+                        {
+                            p_DeInitilize();   
+                        }
+                        return(*this);
+                    }
+                    else
+                    {
+                        if(m_Initialised)
+                        {
+                            p_GetRef() = std::move(ObjectToInsert.p_GetRef());
+                        }
+                        else
+                        {
+                            p_Initialize(std::move(ObjectToInsert.p_GetRef()));
+                        }
+                    }
+                }
+                else
+                {
+                    if(ObjectToInsert.m_Initialised)
+                    {
+                        std::memcpy(m_ObjectData,ObjectToInsert.m_ObjectData,sizeof(m_ObjectData));   
+                    }
+                    m_Initialised = ObjectToInsert.m_Initialised;
                 }
                 return(*this);
             }

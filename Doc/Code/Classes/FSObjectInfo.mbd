@@ -1,0 +1,10 @@
+//DocGen_Begin
+\table 1
+Public:&
+~ffffff std::~ ~00ff00 string~  @[Name](#Name)
+& @[Type](#Type)
+&~00ff00 uint64_t~  @[Size](#Size)
+&~00ff00 uint64_t~  @[LastWriteTime](#LastWriteTime)
+&
+\end 1
+//DocGen_End

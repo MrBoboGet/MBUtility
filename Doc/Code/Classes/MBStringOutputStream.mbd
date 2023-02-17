@@ -1,0 +1,12 @@
+//DocGen_Begin
+\table 1
+Private:&
+ @[m_OutputString](#m_OutputString)
+&~00ff00 size_t~  @[m_OutputPosition](#m_OutputPosition)
+&Public:&
+~00ff00 size_t~  ~ffff00 @[Write](#Write_0)~ ( ~afeeee @[DataToWrite](#Write_0#DataToWrite)~ ,~00ff00 size_t~  ~afeeee @[DataToWriteSize](#Write_0#DataToWriteSize)~ )
+&~00ff00 uintmax_t~  ~ffff00 @[SetOutputPosition](#SetOutputPosition_0)~ (~00ff00 uintmax_t~  ~afeeee @[NewOutputPosition](#SetOutputPosition_0#NewOutputPosition)~ )
+&~00ff00 uintmax_t~  ~ffff00 @[GetOutputPosition](#GetOutputPosition_0)~ ()
+&
+\end 1
+//DocGen_End

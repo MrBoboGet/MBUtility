@@ -1,0 +1,6 @@
+//DocGen_Begin
+\table 1
+~0000ff bool~  ~ffff00 @[operator!](#operator!_0)~ ( ~afeeee @[Error](#operator!_0#Error)~ )
+&
+\end 1
+//DocGen_End

@@ -1,0 +1,8 @@
+//DocGen_Begin
+\table 1
+~0000ff void~  ~ffff00 @[WriteData](#WriteData_0)~ (~00ff00 @[MBOctetInputStream](MBOctetInputStream.mbd)~ \& ~afeeee @[Input](#WriteData_0#Input)~ ,~00ff00 @[MBOctetOutputStream](MBOctetOutputStream.mbd)~ \& ~afeeee @[Output](#WriteData_0#Output)~ )
+&~0000ff void~  ~ffff00 @[WriteData](#WriteData_1)~ (~00ff00 @[MBOctetOutputStream](MBOctetOutputStream.mbd)~ \& ~afeeee @[Output](#WriteData_1#Output)~ ,const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[DataToWrite](#WriteData_1#DataToWrite)~ )
+&~0000ff void~  ~ffff00 @[WriteData](#WriteData_2)~ (~00ff00 @[MBOctetOutputStream](MBOctetOutputStream.mbd)~ \& ~afeeee @[Output](#WriteData_2#Output)~ , ~afeeee @[DataToWrite](#WriteData_2#DataToWrite)~ )
+&
+\end 1
+//DocGen_End

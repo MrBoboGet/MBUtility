@@ -1,0 +1,14 @@
+//DocGen_Begin
+\table 1
+Private:&
+ @[m_ExternalFileStream](#m_ExternalFileStream)
+&~ffffff std::~ ~00ff00 unique_ptr~ <~ffffff std::~ ~00ff00 ifstream~ > @[m_OwnedPointer](#m_OwnedPointer)
+&~ffffff std::~ ~00ff00 ifstream~  @[m_StreamObject](#m_StreamObject)
+& ~ffff00 @[p_GetPointerToUse](#p_GetPointerToUse_0)~ ()
+&Public:&
+~00ff00 size_t~  ~ffff00 @[Read](#Read_0)~ ( ~afeeee @[Buffer](#Read_0#Buffer)~ ,~00ff00 size_t~  ~afeeee @[BytesToRead](#Read_0#BytesToRead)~ )
+&~00ff00 uint64_t~  ~ffff00 @[SetInputPosition](#SetInputPosition_0)~ (~00ff00 int64_t~  ~afeeee @[NewOutputPosition](#SetInputPosition_0#NewOutputPosition)~ ,~0000ff int~  ~afeeee @[whence](#SetInputPosition_0#whence)~ )
+&~00ff00 uint64_t~  ~ffff00 @[GetInputPosition](#GetInputPosition_0)~ ()
+&
+\end 1
+//DocGen_End

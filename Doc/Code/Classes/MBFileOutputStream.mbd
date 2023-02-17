@@ -1,0 +1,15 @@
+//DocGen_Begin
+\table 1
+Private:&
+~0000ff bool~  @[m_UseReference](#m_UseReference)
+&~ffffff std::~ ~00ff00 ofstream~  @[m_FileOutput](#m_FileOutput)
+& @[m_ReferenceOutput](#m_ReferenceOutput)
+& ~ffff00 @[p_GetOutputStream](#p_GetOutputStream_0)~ ()
+&Public:&
+~00ff00 uintmax_t~  ~ffff00 @[GetOutputPosition](#GetOutputPosition_0)~ ()
+&~0000ff void~  ~ffff00 @[Flush](#Flush_0)~ ()
+&~00ff00 size_t~  ~ffff00 @[Write](#Write_0)~ ( ~afeeee @[DataToWrite](#Write_0#DataToWrite)~ ,~00ff00 size_t~  ~afeeee @[DataToWriteSize](#Write_0#DataToWriteSize)~ )
+&~00ff00 uintmax_t~  ~ffff00 @[SetOutputPosition](#SetOutputPosition_0)~ (~00ff00 uintmax_t~  ~afeeee @[NewOutputPosition](#SetOutputPosition_0#NewOutputPosition)~ )
+&
+\end 1
+//DocGen_End

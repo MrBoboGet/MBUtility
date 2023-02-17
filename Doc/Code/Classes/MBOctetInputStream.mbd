@@ -1,0 +1,7 @@
+//DocGen_Begin
+\table 1
+Public:&
+~00ff00 size_t~  ~ffff00 @[Read](#Read_0)~ ( ~afeeee @[Buffer](#Read_0#Buffer)~ ,~00ff00 size_t~  ~afeeee @[BytesToRead](#Read_0#BytesToRead)~ )
+&
+\end 1
+//DocGen_End

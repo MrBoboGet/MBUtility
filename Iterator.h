@@ -40,4 +40,29 @@ namespace MBUtility
             return(Derived.GetRef());
         }
     };
+    template<typename T>
+    class RangeIterable
+    {
+    private:
+        T m_Begin;
+        T m_End;
+    public:
+        RangeIterable()
+        {
+               
+        }
+        RangeIterable(T Begin,T End)
+        {
+            m_Begin = Begin;
+            m_End = End;
+        }
+        T begin()
+        {
+            return(m_Begin);
+        }
+        T end()
+        {
+            return(m_End);
+        }
+    };
 }

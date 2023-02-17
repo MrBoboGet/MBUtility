@@ -12,6 +12,10 @@ namespace MBUtility
         //the stream is finished, and subsequent reads MUST throw an exception
         //derived from std::exception.
         virtual size_t ReadSome(void* Buffer,size_t BufferSize) = 0;
+        virtual ~IndeterminateInputStream()
+        {
+               
+        }
     };
     inline size_t ReadExact(IndeterminateInputStream& Stream,void* Buffer,size_t BufferSize)
     {

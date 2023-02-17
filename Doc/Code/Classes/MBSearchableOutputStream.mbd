@@ -1,0 +1,8 @@
+//DocGen_Begin
+\table 1
+Public:&
+~00ff00 uintmax_t~  ~ffff00 @[SetOutputPosition](#SetOutputPosition_0)~ (~00ff00 uintmax_t~  ~afeeee @[NewOutputPosition](#SetOutputPosition_0#NewOutputPosition)~ )
+&~00ff00 uintmax_t~  ~ffff00 @[GetOutputPosition](#GetOutputPosition_0)~ ()
+&
+\end 1
+//DocGen_End

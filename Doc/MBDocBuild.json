@@ -1,0 +1,16 @@
+{
+    "TopDirectory":
+    {
+        "Files":
+        [
+            "index.mbd"
+        ],
+        "SubDirectories":
+        {
+            "Code":
+            {
+                "MountDir":"Code"   
+            }
+        }
+    }
+}

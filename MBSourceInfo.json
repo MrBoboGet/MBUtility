@@ -7,6 +7,17 @@
     [
 
     ],
+    "ExtraLanguageInfo":
+    {
+        "Headers":
+        [
+            "/Filesystem.h",
+            "/MBFiles.h",
+            "/MBErrorHandling.h",
+            "/MBInterfaces.h",
+            "/MBMatrix.h"
+        ]
+    },
     "Language":"C++",
     "Standard":"C++17",
     "Targets": 
