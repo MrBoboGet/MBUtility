@@ -1,0 +1,99 @@
+%title IO
+
+On of the biggest part of MBUtility is the inclusion of the generic interfaces
+describing the different kind of IO that is used in a program. An overview of
+these interfaces is given here, describing the typical use cases by which they
+are modelled, and how and why they are different.
+
+IO is a term that is used very commonly, but often times never really given a
+precise definition. It also has slightly different connotations depending on
+which level the code is located, IO in assembly and kernel development for
+example has many pitfalls and unique challenges that aren't present in everyday
+programming. The definition of IO used here is quite broad, and is defined as
+any operation reading data, bytes, from a source that is external to the program
+being run, such as in a file, from a network socket, or a pipe. The interfaces
+here are therefor designed in order to describe the different kind of IO
+operations these tasks require. 
+
+All interfaces describe different kind of "byte streams", that is you can read
+bytes from them in consecutive order. The interfaces are also unlike typical
+posix file descriptors statically typed, that is the behaviour of the stream is
+uniquely determined by the interface, and no runtime checking is needed to use
+them right. But this also means that many of the streams have very similar
+behaviour, and only differ in very few key points.
+
+The interfaces are also designed to be as minimal as possible. Many libraries
+provide much more convenient helper functions, such as reading a stream line by
+line, reading until a specific character is encountered, etc etc. But these are
+all operations that I argue should be implemented externally from the stream.
+
+When implementing a new stream object, the hard static typing assumed means that
+it must be extremely clear exactly was is expected from it. Requiring that every 
+@[Input stream](#Input stream) can read line by line most likely involves a lot
+of code duplication, and most importantly, means that meany features have to be
+implemented before it can be usable by other components expecting this
+behaviour. The design philosophy here favours composability over performance
+when the dichotomy is given, and assumes that these convenience functions can be
+implemented reasonably good in a generic fashion, with the
+@[LineRetriever]({LineRetriever}) being an example of such an external object.
+
+
+Another very important part of these interfaces are the semantics. These
+interfaces are simple, but describing them only through their operational
+semantics often times fail to convey how they should actually be used. The best
+example of this is the classic TCP network socket. Reading from a TCP socket can
+be considered identical to a reading from a @[input stream](#Input stream). EOF
+can easily be determined by just reading. Just wait until the clients
+disconnects lmao. But this fails to capture the semantics of the stream. A 
+@[input stream](#Input stream) is a stream where content can be read without
+having to reason about extremely large stalls, and where the content can be
+considered having a concrete end. This is not the case for the TCP network
+stream, which can stall for arbitrary amounts of time, and where it's impossible
+to determine if all data was truly sent.
+
+Common to all these interfaces are also the assumption that something only can be
+considered correctly implementing the interface, if expected behaviour can be
+achieved without the use of other functions that object might provide. Something
+is not an @[input stream](#Input stream) if satisfies the interface only when
+for example alternating between read and write operations.
+
+# Input stream
+    
+    The input stream, described by @[MBOctetInputStream](#MBOctetInputStream),
+    is in some sense a bit of a misnomer. Many streams here can be considered a
+    input stream, and this very generic name might hint at a inheritance
+    hierarchy, which isn't present. It is named the "Input stream" because it
+    provides the most simple and perhaps most commonly used functionality. 
+
+    A input stream is a byte stream, where consecutive bytes can be read from,
+    and where an exact amount of bytes can always be read at a time, with the
+    EOF being signaled through less than the requested bytes sent. This mirrors
+    the interface used when reading from a file with for example std::ofstream.
+
+    What makes this interface unique, is that it knows when no more bytes can be
+    read. A file has a set size which is known by the operating system, there is
+    never confusion whether or not a file has more bytes or not, or if all bytes
+    truly has been read. Note of this differs from the 
+    @[indeterminate input stream](#Indeterminate input stream).
+    
+    A correct implementation must also guarantee another property, which is that
+    it can never "stall for an arbitrary amount of time". When reading from a
+    socket where bidirectional communication is expected, so can reading more
+    bytes than the client has sent mean that the programs stall indefinitely,
+    trying to access more bytes than is available, with now way of knowing
+    whether or not more bytes actually are to be sent until the client
+    disconnects. This is not the case when reading from a file. Reading from a
+    file, while still taking time as IO is a generally expensive operation,
+    still has a bounded amount of time it can take. An error in reading from the
+    file quickly propagate upwards and the stream ends, or the operation
+    finishes in a time that is relatively constant, depending on congestion of
+    course. 
+
+    This "reasonably amount of time" is however hard to make precise. Reading
+    from a file is unreasonably slow in some use cases, in for example GUI code
+    running on the main thread or when providing input for an audio buffer, but
+    can also be be considered instantaneous in other use cases, such as reading
+    configuration files for a interactive program. Reading consecutive bytes
+    from buffer stored in memory can also always be considered fast enough for 
+    any use case.
+
