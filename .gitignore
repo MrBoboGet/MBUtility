@@ -5,6 +5,7 @@
 /MBPM_FileInfo
 /MBPM*
 /*swp
+/*/*.swp
 /.*
 /compile_commands.json
 /DocOut/

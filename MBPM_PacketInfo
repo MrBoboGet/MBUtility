@@ -1,10 +1,9 @@
 {
 	"PacketName":"MBUtility",
 	"Attributes":["Embeddable"],
-	"OutputConfigurations":["StaticDebug","StaticRelease"],
-	"OutputTargetNames": {
-		"StaticRelease": "MBUtility_SR",
-		"StaticDebug": "MBUtility_SD"
-	},
-	"Dependancies":[]
+    "SubPackets":
+    [
+        "/Doc"
+    ],
+    "Dependancies":[]
 }

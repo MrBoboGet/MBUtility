@@ -20,7 +20,8 @@ bytes from them in consecutive order. The interfaces are also unlike typical
 posix file descriptors statically typed, that is the behaviour of the stream is
 uniquely determined by the interface, and no runtime checking is needed to use
 them right. But this also means that many of the streams have very similar
-behaviour, and only differ in very few key points.
+behaviour, and only differ in very few key points, commonly sharing identical
+function signatures.
 
 The interfaces are also designed to be as minimal as possible. Many libraries
 provide much more convenient helper functions, such as reading a stream line by
@@ -59,7 +60,8 @@ for example alternating between read and write operations.
 
 # Input stream
     
-    The input stream, described by @[MBOctetInputStream](#MBOctetInputStream),
+    The input stream, described by
+    @[MBOctetInputStream](Code/{MBOctetInputStream.mbd}),
     is in some sense a bit of a misnomer. Many streams here can be considered a
     input stream, and this very generic name might hint at a inheritance
     hierarchy, which isn't present. It is named the "Input stream" because it
@@ -76,24 +78,52 @@ for example alternating between read and write operations.
     truly has been read. Note of this differs from the 
     @[indeterminate input stream](#Indeterminate input stream).
     
-    A correct implementation must also guarantee another property, which is that
-    it can never "stall for an arbitrary amount of time". When reading from a
-    socket where bidirectional communication is expected, so can reading more
-    bytes than the client has sent mean that the programs stall indefinitely,
-    trying to access more bytes than is available, with now way of knowing
-    whether or not more bytes actually are to be sent until the client
-    disconnects. This is not the case when reading from a file. Reading from a
-    file, while still taking time as IO is a generally expensive operation,
-    still has a bounded amount of time it can take. An error in reading from the
-    file quickly propagate upwards and the stream ends, or the operation
-    finishes in a time that is relatively constant, depending on congestion of
-    course. 
+    This interface makes no guarantee on the amount of time any given
+    read operation takes. A read must not be considered usable for realtime
+    purposes, and an application must be ready to block for a long time when
+    using it. It also provides no ability to determine whether or not a given
+    read will block.
 
-    This "reasonably amount of time" is however hard to make precise. Reading
-    from a file is unreasonably slow in some use cases, in for example GUI code
-    running on the main thread or when providing input for an audio buffer, but
-    can also be be considered instantaneous in other use cases, such as reading
-    configuration files for a interactive program. Reading consecutive bytes
-    from buffer stored in memory can also always be considered fast enough for 
-    any use case.
+    _# Use cases
+        
+        This interface is meant to model the way file reading is performed, and
+        is for example applicable when data that is needed to be processed can
+        be processed chunk for chunk without needing to look back at previous
+        data. No guarantee on block time also means that it is not as applicable
+        for GUI code, and should either be used on a separate thread for
+        interactive programs. 
 
+        It having now way to determine whether or not a given read will block or
+        not or determine when an error has occurred, means that it's most
+        commonly used when for example parsing various kind of file formats.
+        Parsing for example a JSON file can often times be done chunk by chunk,
+        and doesn't require previously read bytes to be present. The parsing of
+        a file also always has a binary outcome, either the file abides by the
+        format, or it's faulty. This operation is also often times relatively
+        atomic, many times the semantics of the file can only be correctly
+        determined when the whole file is read, like in JSON, where determining
+        whether or not the top object contains a specific attribute requires
+        reading through the whole file. Parsing of file format is therefor 
+        something that can easily be done asynchronously, or something that is
+        needed to be done on the spot to continue execution, and arbitrary read
+        times are something that can neither be avoided nor remedied by for for
+        example "non-blocking" reads.
+
+        This interface is not applicable for describing bidirectional
+        communication. Communication often times means that the amount of bytes
+        sent by the other part are determined by what is sent by you, and in the
+        case where the input of one is unrelated to the output, so can that
+        relationship be more accurately described with the use of two separate
+        streams.
+
+        This also means that for example interprocess communication with stdio is not
+        something that can be considered abiding by this interface, and which is
+        why
+        @[MBSystem::BiDirectionalProcess](/{MBSystem}/BiDirectionalProcess.mbd)
+        uses a pair of @[Indeterminate streams](#Indeterminate streams).
+
+        //ge exempel på project inom MB librariesen som använder det.
+        //Kan fungera som ett bra sätt att visa hur det är tänkt att användas,
+        //och ge lite av en inblick i desgin filosofin.
+        
+    /#

@@ -3,7 +3,8 @@
     {
         "Files":
         [
-            "index.mbd"
+            "index.mbd",
+            "IO.mbd"
         ],
         "SubDirectories":
         {
