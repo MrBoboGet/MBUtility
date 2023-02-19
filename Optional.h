@@ -11,10 +11,10 @@ namespace MBUtility
             alignas(T) char m_ObjectData[sizeof(T)];
             
             template<typename... Types>
-            void p_Initialize(Types... Args)
+            void p_Initialize(Types&&... Args)
             {
                 m_Initialised = true;
-                new (m_ObjectData) T(Args...);
+                new (m_ObjectData) T(std::forward<Types>(Args)...);
             }
             T& p_GetRef()
             {
@@ -82,7 +82,7 @@ namespace MBUtility
                 }
                 else
                 {
-                    p_Initialize(ObjectToInsert); 
+                    p_Initialize(std::move(ObjectToInsert)); 
                 }
                 return(*this);
             }
