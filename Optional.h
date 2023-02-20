@@ -42,7 +42,7 @@ namespace MBUtility
             }
             Optional(T&& TypeToInitialzie) noexcept
             {
-                p_Initialize(std::move(TypeToInitialzie)); 
+                p_Initialize<T&&>(std::move(TypeToInitialzie)); 
             }
             Optional(T const& TypeToInitialzie)
             {
@@ -59,7 +59,7 @@ namespace MBUtility
             {
                 if(OptionalToCopy.IsInitalized())
                 {
-                    p_Initialize(std::move(OptionalToCopy.p_GetRef())); 
+                    p_Initialize<T&&>(std::move(OptionalToCopy.p_GetRef())); 
                 }
             }
             Optional& operator=(T const& ObjectToInsert)
@@ -82,7 +82,7 @@ namespace MBUtility
                 }
                 else
                 {
-                    p_Initialize(std::move(ObjectToInsert)); 
+                    p_Initialize<T&&>(std::move(ObjectToInsert));
                 }
                 return(*this);
             }
@@ -140,7 +140,7 @@ namespace MBUtility
                         }
                         else
                         {
-                            p_Initialize(std::move(ObjectToInsert.p_GetRef()));
+                            p_Initialize<T&&>(std::move(ObjectToInsert.p_GetRef()));
                         }
                     }
                 }
