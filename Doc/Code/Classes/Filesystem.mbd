@@ -1,13 +1,13 @@
 //DocGen_Begin
 \table 1
 Public:&
-~ffffff std::~ ~00ff00 unique_ptr~ <~ffffff MBUtility::~ ~00ff00 @[MBSearchableInputStream](../{MBSearchableInputStream.mbd})~ > ~ffff00 @[GetFileInputStream](#GetFileInputStream_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[FilePath](#GetFileInputStream_0#FilePath)~ , ~afeeee @[OutError](#GetFileInputStream_0#OutError)~ )
+~ffffff std::~ ~00ff00 unique_ptr~ <~ffffff MBUtility::~ ~00ff00 @[MBSearchableInputStream](../{MBSearchableInputStream.mbd})~ > ~ffff00 @[GetFileInputStream](#GetFileInputStream_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[FilePath](#GetFileInputStream_0#FilePath)~ ,~00ff00 @[FilesystemError](../{FilesystemError.mbd})~ \* ~afeeee @[OutError](#GetFileInputStream_0#OutError)~ )
 &~ffffff std::~ ~00ff00 string~  ~ffff00 @[GetCurrentPath](#GetCurrentPath_0)~ ()
-&~ffffff std::~ ~00ff00 unique_ptr~ <~ffffff MBUtility::~ ~00ff00 @[MBSearchableOutputStream](../{MBSearchableOutputStream.mbd})~ > ~ffff00 @[GetFileOutputStream](#GetFileOutputStream_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[FilePath](#GetFileOutputStream_0#FilePath)~ , ~afeeee @[OutError](#GetFileOutputStream_0#OutError)~ )
-& ~ffff00 @[ChangeDirectory](#ChangeDirectory_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[NewDirectory](#ChangeDirectory_0#NewDirectory)~ )
-&~00ff00 @[FSObjectInfo](../{FSObjectInfo.mbd})~  ~ffff00 @[GetInfo](#GetInfo_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[Path](#GetInfo_0#Path)~ , ~afeeee @[OutError](#GetInfo_0#OutError)~ )
-&~ffffff std::~ ~00ff00 vector~ <~00ff00 @[FSObjectInfo](../{FSObjectInfo.mbd})~ > ~ffff00 @[ListDirectory](#ListDirectory_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[Path](#ListDirectory_0#Path)~ , ~afeeee @[OutError](#ListDirectory_0#OutError)~ )
-& ~ffff00 @[Exists](#Exists_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[Path](#Exists_0#Path)~ )
+&~ffffff std::~ ~00ff00 unique_ptr~ <~ffffff MBUtility::~ ~00ff00 @[MBSearchableOutputStream](../{MBSearchableOutputStream.mbd})~ > ~ffff00 @[GetFileOutputStream](#GetFileOutputStream_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[FilePath](#GetFileOutputStream_0#FilePath)~ ,~00ff00 @[FilesystemError](../{FilesystemError.mbd})~ \* ~afeeee @[OutError](#GetFileOutputStream_0#OutError)~ )
+&~00ff00 @[FilesystemError](../{FilesystemError.mbd})~  ~ffff00 @[ChangeDirectory](#ChangeDirectory_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[NewDirectory](#ChangeDirectory_0#NewDirectory)~ )
+&~00ff00 @[FSObjectInfo](../{FSObjectInfo.mbd})~  ~ffff00 @[GetInfo](#GetInfo_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[Path](#GetInfo_0#Path)~ ,~00ff00 @[FilesystemError](../{FilesystemError.mbd})~ \* ~afeeee @[OutError](#GetInfo_0#OutError)~ )
+&~ffffff std::~ ~00ff00 vector~ <~00ff00 @[FSObjectInfo](../{FSObjectInfo.mbd})~ > ~ffff00 @[ListDirectory](#ListDirectory_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[Path](#ListDirectory_0#Path)~ ,~00ff00 @[FilesystemError](../{FilesystemError.mbd})~ \* ~afeeee @[OutError](#ListDirectory_0#OutError)~ )
+&~00ff00 @[FilesystemError](../{FilesystemError.mbd})~  ~ffff00 @[Exists](#Exists_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[Path](#Exists_0#Path)~ )
 &
 \end 1
-//DocGen_End
+//DocGen_End 2ed61cb99738cebb6fd9a81e0168bf8712cd718c827458b428373f255d66b026

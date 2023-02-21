@@ -4,7 +4,7 @@ Private:&
 ~0000ff bool~  @[m_StreamFinished](#m_StreamFinished)
 &~0000ff bool~  @[m_Finished](#m_Finished)
 &~ffffff std::~ ~00ff00 string~  @[m_Buffer](#m_Buffer)
-& @[m_InputStream](#m_InputStream)
+&~ffffff MBUtility::~ ~00ff00 @[MBOctetInputStream](../{MBOctetInputStream.mbd})~ \* @[m_InputStream](#m_InputStream)
 &~00ff00 size_t~  @[m_BufferOffset](#m_BufferOffset)
 &~ffffff std::~ ~00ff00 string~  @[m_CurrentLine](#m_CurrentLine)
 &~0000ff bool~  @[m_LineBuffered](#m_LineBuffered)
@@ -15,4 +15,4 @@ Private:&
 &~ffffff std::~ ~00ff00 string~ \& ~ffff00 @[PeekLine](#PeekLine_0)~ ()
 &
 \end 1
-//DocGen_End
+//DocGen_End b70307f79300c0a68111a4944f58c0c263d10eddb7c3a60abd035a6eb36fcf03

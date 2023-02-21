@@ -3,9 +3,9 @@
 Private:&
 ~00ff00 size_t~  @[m_ReadOffset](#m_ReadOffset)
 &~00ff00 size_t~  @[m_BufferSize](#m_BufferSize)
-& @[m_BufferToReadFrom](#m_BufferToReadFrom)
+&const ~00ff00 uint8_t~ \* @[m_BufferToReadFrom](#m_BufferToReadFrom)
 &Public:&
-~00ff00 size_t~  ~ffff00 @[Read](#Read_0)~ ( ~afeeee @[Buffer](#Read_0#Buffer)~ ,~00ff00 size_t~  ~afeeee @[RequestedBytes](#Read_0#RequestedBytes)~ )
+~00ff00 size_t~  ~ffff00 @[Read](#Read_0)~ (~0000ff void~ \* ~afeeee @[Buffer](#Read_0#Buffer)~ ,~00ff00 size_t~  ~afeeee @[RequestedBytes](#Read_0#RequestedBytes)~ )
 &
 \end 1
-//DocGen_End
+//DocGen_End 9f7744cdec600ec3f4fdf54723cdb51603ddd718305f30894656f2881c25896c

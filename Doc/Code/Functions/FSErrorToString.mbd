@@ -1,6 +1,6 @@
 //DocGen_Begin
 \table 1
-~ffffff std::~ ~00ff00 string~  ~ffff00 @[FSErrorToString](#FSErrorToString_0)~ ( ~afeeee @[ErrorToConvert](#FSErrorToString_0#ErrorToConvert)~ )
+~ffffff std::~ ~00ff00 string~  ~ffff00 @[FSErrorToString](#FSErrorToString_0)~ (~00ff00 @[FilesystemError](../{FilesystemError.mbd})~  ~afeeee @[ErrorToConvert](#FSErrorToString_0#ErrorToConvert)~ )
 &
 \end 1
-//DocGen_End
+//DocGen_End de090518b822439ae5ca34017e4ae6038dccc9e8e4ce3193754a7df51de0af33

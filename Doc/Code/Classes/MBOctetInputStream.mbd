@@ -1,7 +1,47 @@
 //DocGen_Begin
 \table 1
 Public:&
-~00ff00 size_t~  ~ffff00 @[Read](#Read_0)~ ( ~afeeee @[Buffer](#Read_0#Buffer)~ ,~00ff00 size_t~  ~afeeee @[BytesToRead](#Read_0#BytesToRead)~ )
+~00ff00 size_t~  ~ffff00 @[Read](#Read_0)~ (~0000ff void~ \* ~afeeee @[Buffer](#Read_0#Buffer)~ ,~00ff00 size_t~  ~afeeee @[BytesToRead](#Read_0#BytesToRead)~ )
 &
 \end 1
-//DocGen_End
+//DocGen_End 4972815196ca1426adb400c50dd4dfaf231f3dc8a5ee82cb936c0158a73ca2df
+
+
+This interface represents the most simple input stream, and mirrors how typical
+file io is performed. More about the semantics of the interface can be read
+about in the @[overview of IO](../../IO.mbd).
+
+#Read_0 
+
+    This function reads bytes from the input stream, retrieving them in
+    consecutive order, and stores them in the buffer. If the memory between
+    Buffer,(char\*)Buffer+BytesToRead is not writable so is the behaviour
+    undefined.
+
+    The return value is the amount of bytes that where read, meaning that 
+    Buffer,(Char\*)Buffer+(returned value) has the new bytes that were read from
+    the stream. A return value less than BytesToRead means that no more bytes
+    are left in the stream, and subsequent calls will always return 0, and leave
+    Buffer unmodified. 
+
+    This function will never throw an exception.
+
+
+    _# Buffer
+        
+        The buffer where the output is stored. 
+        
+    /#
+
+    _# BytesToRead
+
+        The max amount of bytes to read. A  return value less than this value
+        indicates the the stream has no more bytes left to read.
+
+    /#
+
+    _# ReturnValue
+
+        The amount of bytes that were read from the stream.
+
+    /#    

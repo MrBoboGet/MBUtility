@@ -4,4 +4,4 @@ Public:&
 ~0000ff bool~  ~ffff00 @[VerifyUser](#VerifyUser_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[Username](#VerifyUser_0#Username)~ ,const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[Password](#VerifyUser_0#Password)~ )
 &
 \end 1
-//DocGen_End
+//DocGen_End 2c4712f1d00eaf198f7c32a6ce3d23137108883cd3e4c300118d4016e5e065f6

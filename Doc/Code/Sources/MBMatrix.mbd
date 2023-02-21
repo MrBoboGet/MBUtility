@@ -1,0 +1,9 @@
+%title MBMatrix.mbd
+```cpp
+//#include <MBMatrix.h>
+//namespace MBMath 
+//{
+	//template<typename T>
+	//MBMatrix<T>::oper
+//}
+```

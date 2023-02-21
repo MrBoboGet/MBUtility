@@ -1,6 +1,6 @@
 //DocGen_Begin
 \table 1
- ~ffff00 @[StringToFSObjectType](#StringToFSObjectType_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[TypeToConvert](#StringToFSObjectType_0#TypeToConvert)~ )
+~00ff00 @[FileSystemType](../{FileSystemType.mbd})~  ~ffff00 @[StringToFSObjectType](#StringToFSObjectType_0)~ (const ~ffffff std::~ ~00ff00 string~ \& ~afeeee @[TypeToConvert](#StringToFSObjectType_0#TypeToConvert)~ )
 &
 \end 1
-//DocGen_End
+//DocGen_End 38d96be2719074339323e18cf2632ffd5205f45de5aeb301f5521b9ffeddabd5

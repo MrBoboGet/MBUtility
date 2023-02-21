@@ -2,9 +2,9 @@
 \table 1
 Public:&
 ~ffffff std::~ ~00ff00 string~  @[Name](#Name)
-& @[Type](#Type)
+&~00ff00 @[FileSystemType](../{FileSystemType.mbd})~  @[Type](#Type)
 &~00ff00 uint64_t~  @[Size](#Size)
 &~00ff00 uint64_t~  @[LastWriteTime](#LastWriteTime)
 &
 \end 1
-//DocGen_End
+//DocGen_End 0b60a29ced0257517bbac09d461986f6dae57e87142fdd1c1198d4a057f372f2

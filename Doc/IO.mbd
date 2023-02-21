@@ -127,3 +127,274 @@ for example alternating between read and write operations.
         //och ge lite av en inblick i desgin filosofin.
         
     /#
+
+    _# Unsuitable use cases
+
+        The archetypical example of when this interface isn't suitable, is when
+        one is parsing a structure from a TCP socket, and there is no a way to
+        know how many bytes are needed to be read in order to determine the size
+        of the structure. A prime example is HTTP.
+        
+        The only way to determine the total length of a HTTP message, is to read
+        all of the headers. But the size of these headers don't have set size.
+        They are instead delimited by "\r\n\r\n". The problem is then, how
+        large of a read can be made in order to guarantee that the parsing will
+        not block indefinitely? The answer is in the general case, 1 byte.
+        However, reading one byte at a time is potentially very inefficient.
+        
+        A solution to this problem is to either use a 
+        @[indeterminate stream](#Indeterminate input stream), or to use a
+        interface where it is possible to determine how many bytes can be read
+        without blocking. 
+
+        However, this interface can still be used when parsing formats where a
+        set amount of bytes can be read in order to determine the total size.
+        Many binary formats have this structure, and for example TLS has a
+        structure where 5 bytes can bread in order to determine how many bytes
+        the message consists of. It is often times much easier to parse formats
+        with this structure, as minimal bookkeeping is needed. In contrast,
+        parsing HTTP requires that one can keep track of when the double newline
+        appears, by storing a offset into the read bytes and updating it as new
+        data is read.
+
+        
+    /#
+
+# Output stream
+
+    Most of the IO described here is about reading information, and very little
+    about writing. This mostly has to do with that output in general requires
+    less considerations.
+
+    Most form of interprocess communication is either one sided,
+    writing/reading, or bidirectional, writing and reading interleaved. It is in
+    this interleaved writing and reading that the extra input interfaces are
+    required. But writing mostly takes the same form. When a certain amount of
+    bytes are to be sent, so must all the bytes be sent. When one is the sending
+    side of one sided communication, so is the whole write operation most likely
+    needed to be completed before more calculations can be done. The same is
+    true for bidirectional communication, the bytes sent are most likely the
+    bytes that determine the response, and no further reading / handling of
+    response can be done before the bytes that are needed to be sent are sent.
+
+    This interface therefor only has 2 members, the 
+    @[Write]({MBOctetOutputStream.mbd}#Write_0) function, and the 
+    @[Flush]({MBOctetOutputStream.mbd}#Flush_0) function. The write function sends a
+    certain amount of bytes, and block until all bytes are sent. It returns the
+    amount of bytes actually sent, a value less then the requested means that
+    the output stream doesn't take any more bytes. The
+    @[Flush]({MBOctetOutputStream.mbd}#Flush_0)
+    function ensures that all bytes that are said to be written are actually
+    written. This pair is provided in order to allow more efficient batching of
+    reads that are specific for the task. A write can't be guaranteed to have
+    actually written it's bytes if a flush  haven't been invoked after it, and
+    invoking a flush guarantees that all writes are actualized in order.
+
+# Indeterminate input stream
+
+    This is a very similar alternative to the regular 
+    @[input stream](#Input stream), but with slightly different semantics. It
+    too defines a single function,
+    @[ReadSome]({IndeterminateInputStream.mbd}#ReadSome). The difference between
+    the indeterminate input stream and the regular input stream, is that
+    receiving less bytes than the requested size doesn't mean that the input
+    stream is finished. A stream is finished upon receiving 0 bytes. This means 
+    that every call blocks until at least 1 bytes is read, or EOF has been
+    encountered.
+
+    This interface mimic's the behaviour of reading from a socket, with the
+    default recv behaviour. This interface might seem superfluous at first
+    glance, but it provides a fundamental difference: It's possible to read an
+    arbitrary large amount of bytes from a message without causing a block that
+    lasts forever.
+
+    This advantage is most apparent when reading from a bidirectional stream,
+    that is one is reading data from some entity that also expects and answer
+    based on the data sent. If one would use a @[input stream](#Input stream)
+    for this case, reading a larger chunk than the message sent by the user
+    means that the program waits on data that is never sent, and eventually
+    times out. Some protocols, notably HTTP as 
+    @[described above](#Input stream#Unsuitable use cases), doesn't provide a
+    set size that can be read in order to determine the size of the message.
+
+# Searchable input stream
+
+    The searchable input stream extends the regular @[input stream](#Input stream)
+    with 2 new functions,
+    @[SetInputPosition]({MBSearchableInputStream.mbd}#SetInputPosition),
+    @[GetInputPosition]({MBSearchableInputStream.mbd}#GetInputPosition). These add
+    The ability to set the read position of the stream.
+    @[SetInputPosition]({MBSearchableInputStream.mbd}#SetInputPosition) modifies the
+    current read position to be positioned at the requested position. Reading
+    the starts from that position, and increments per read byte. It is also
+    possible to query the current position in order to for example store that
+    position and return to it later.
+
+    This interface is mostly used when the data being read from is stored on
+    disk. A protocol record/file that can be memory mapped in general doesn't
+    need the ability to search between different byte offsets. It is however
+    indispensable with for example media files. Loading a whole 2GB movie into
+    memory and then decoding is generally not very effective or even needed. But
+    this relies on the ability to read bytes from an arbitrary offset on demand.
+
+    Another semantic assumption that this interface provides, is that the
+    underlying content isn't modified. A read from the same input position
+    always returns the same amount of bytes. The reason for this restriction, is
+    that it otherwise would require a lot of extra bookkeeping and error
+    checking for for example media demuxers. The ability to search through the
+    content often times implies that the underlying format has information on
+    where certain parts of the file are stored. If the files is simultaneously
+    modified so are these assumptions not necessarily true. And even tough
+    external data can never be trusted, so is the extra bookkeeping needed to
+    also ensure that already read data isn't modified most likely a hindrance to
+    implementation.
+
+# Searchable Output stream
+
+    Inherits from the @[output stream](#Output stream), and provides two
+    additional functions, the
+    @[SetOutputPosition]({MBOctetOutputStream.mbd}#SetOutputPosition_0), and 
+    @[GetOutputPosition]({MBOctetOutputStream.mbd}#GetOutputPosition_0).
+    @[SetOutputPosition]({MBOctetOutputStream.mbd}#SetOutputPosition_0) sets the
+    current write head to the specified byte offset, and the current write byte
+    position can also be retrieved with
+    @[GetOutputPosition]({MBOctetOutputStream.mbd}#GetOutputPosition_0).
+
+    This kind of stream supports some formats which internally has the resulting
+    byte encoding as a part of their semantics. This is true in most media
+    container formats. Creating these usually requires one pass where all of the
+    data they contain are written, and another pass where locations to this data
+    in bytes are then added. 
+
+# Interface strength
+
+    Another important concept in this library, is the idea of interface
+    strength, and has a tight connection with the idea of 
+    @[file format complexity](#File format complexity). The strength of an
+    interface is meant to reflect it's ability to handle different kind of
+    tasks, most commonly being parsing tasks. The stronger the interface the
+    more tasks it can handle. 
+
+    An interface A is said to be stronger than B, if any parsing task
+    accomplished by B can be accomplished by A with the same efficiency. This
+    means that interfaces inheriting form another interface is by default
+    stronger.
+
+    The definition of "task" and accomplishing it "efficiently" is however, a
+    bit vague. An alternative equally informal definition is that a interface is
+    stronger than another interface, if it's possible to change the weaker for
+    the stronger without changing the ability for the codebase to accomplish the
+    same task.
+
+    _# Examples
+    
+        An example of a non-obvious relationship between interface strength, is
+        between the @[input stream](#Input stream) and the 
+        @[indeterminate input stream](#Indeterminate input stream). In this case,
+        the @[indeterminate input stream](#Indeterminate input stream) is
+        actually stronger than the regular @[input stream](#Input stream). This
+        is because an arbitrary @[indeterminate input stream](#Indeterminate input stream)
+        can implement the @[input stream](#Input stream) interface by repeatedly
+        reading until the exact amount of bytes has been read. Any task
+        accomplished by a @[input stream](#Input stream) can therefor be
+        trivially accomplished by a @[indeterminate input stream](#Indeterminate input stream).
+        I would however argue, that these interfaces are not equivalent, that
+        is, tasks that can be accomplished by an @[indeterminate input stream](#Indeterminate input stream) 
+        is not necessarily something that can be accomplished by a regular
+        @[input stream](#Input stream).
+
+        The motivating example is described below in the part about 
+        @[file format complexity](#File format complexity), but in short, there
+        are file formats that can easily be parsed by a @[indeterminate input stream](#Indeterminate input stream),
+        but where @[input stream](#Input stream) would need to read one byte a
+        time. And this is where the other condition *efficiently* is needed. 
+
+        One could indeed argue that, well, reading one byte at a time is indeed
+        sufficient to read the format. But if this parsing is 50% as fast, a
+        distinction can still be made. Another more obvious example is that of
+        the @[#Searchable input stream](#Searchable input stream). One could
+        similarly argue, that any task accomplished by a @[#Searchable input stream](#Searchable input stream)
+        can be accomplished by an @[input stream](#Input stream). One simply has
+        to store all of the bytes read in a giant buffer, and any search
+        operation simply reads up to that point. This does however also mean,
+        that an absurd amount of memory is needed when parsing large files.
+        Therefor, it is reasonable to say that a @[#searchable input stream](#Searchable input stream) 
+        can do more things than a @[input stream](#Input stream).
+
+    /#
+    
+
+
+# File format complexity
+    
+    There are many ways to quantify how difficult a file format is to read,
+    and here a classification of complexity is defined in how weak the
+    interface is. The weakest interface "able to parse" determines the
+    complexity of the file format, a weaker interface means a simpler format.
+
+    When implementing a new IO implementation so is it always better to have a 
+    @[stronger interface](#Interface strength), but when defining a file format
+    so is a less complex file format almost always desirable. This means that
+    the format can be parsed from more sources in an efficient manner.
+
+    In general, one could say that all text formats require an 
+    @[indeterminate input stream](#Indeterminate input stream), because the size
+    of a structure isn't easy to determine without lookahead. Binary formats are
+    however often times easy to implement only using an @[input stream](#Input stream). 
+
+    Below are a couple of example of the different complexities in file formats/
+    protocols that are in use in the MBVerse.
+
+    #_ Examples
+        
+        _# TLS
+            
+            TLS is a great example of a binary protocol that only requires a 
+            @[input stream](#Input stream) to efficiently parse. Every single
+            message, record, has a 5 bytes header, and that headers contains the
+            size of the rest of the record. This means that only 5 bytes have to
+            be read first, then an exact amount of bytes can be read and then
+            parsed. A blocking calls means that the client has sent insufficient
+            bytes.
+            
+        /#
+
+        _# MBDoc
+                
+            The format this text file is written in is a prime example of a
+            format requiring a 
+            @[indeterminate input stream](#Indeterminate input stream). That is
+            because arbitrary
+            
+        /#
+
+        _# MBPM_FileIndex
+
+            As a historical sidenote, it was the development of this index file
+            format the led to the creation of these interfaces. Originally the
+            file was only read from disk, and it used an std::ofstream directly.
+            But then it had to be able to be sent and read from a socket, and
+            then also from an in memory buffer. It was in implementing these
+            different parsing scenarios that
+            @[MBOctetInputStream]({MBOctetInputStream.mbd]}) was first created.
+
+            This is a format that requires a @[searchable input stream](#Input stream), in
+            order to read, and a 
+            @[#searchable output stream](#Searchable input stream) in order to
+            serialize. This is because of the inclusion of byte offset skip 
+            pointers, that were originally conceived in order to allow efficient
+            searching of directories.
+
+            [[Note]]
+            The inclusion of these skip pointers are a great example of 
+            premature optimization. Skip pointers between directories have a use
+            case when the full data structure is too large to memory map, but
+            this isn't the case with MBPM_FileIndex. And these skip pointers
+            have never been used. Furthermore, memory mapping the whole index
+            already means that pointers are redundant. They are because of that
+            only usable when the file is read from disk and you know what data
+            you want to skip, that is, you already have a query to execute. But
+            that is an incredibly niche use case, and the most common operation
+            is to compare 2 full index files.
+
+        /#
