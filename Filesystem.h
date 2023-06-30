@@ -3,6 +3,7 @@
 #include "MBErrorHandling.h"
 
 #include <filesystem>
+#include <vector>
 namespace MBUtility
 {
 	enum class FileSystemType
@@ -54,7 +55,7 @@ namespace MBUtility
 		OS_Filesystem(std::string const& User, std::filesystem::path StartDirectory);
 		OS_Filesystem();
 		//Error Open(std::string const& User, std::filesystem::path StartDirectory);?
-		virtual std::string GetCurrentPath();
+		virtual std::string GetCurrentPath() override;
 		virtual FilesystemError ChangeDirectory(std::string const& NewDirectory) override;
 		virtual FSObjectInfo GetInfo(std::string const& Path, FilesystemError* OutError) override;
 		virtual std::vector<FSObjectInfo> ListDirectory(std::string const& Path, FilesystemError* OutError) override;

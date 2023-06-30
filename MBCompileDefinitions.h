@@ -40,4 +40,13 @@ namespace MBUtility
 #ifdef MBLinux
 	#define MBPosix
 #endif
+
+    constexpr bool IsPOSIX()
+    {
+#ifdef MBPosix
+        return(true);
+#else 
+        return(false);
+#endif
+    }
 }

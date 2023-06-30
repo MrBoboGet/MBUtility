@@ -45,4 +45,19 @@ namespace MBUtility
                 return(m_AssociatedStream->ReadSome(Data,DataSize));
             }
     };
+
+    class NO_IndeterminateToRegular : public MBOctetInputStream
+    {
+    private:
+        IndeterminateInputStream* m_AssociatedStream = nullptr;
+    public:
+        NO_IndeterminateToRegular(IndeterminateInputStream* AssociatedInputStream)
+        {
+            m_AssociatedStream = AssociatedInputStream;
+        }
+        size_t Read(void* Buffer,size_t BufferSize)
+        {
+            return(ReadExact(*m_AssociatedStream,Buffer,BufferSize));
+        };
+    };
 }

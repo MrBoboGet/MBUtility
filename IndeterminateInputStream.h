@@ -32,5 +32,4 @@ namespace MBUtility
         }
         return(ReturnValue);
     }
-    
 }

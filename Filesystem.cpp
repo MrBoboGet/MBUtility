@@ -118,9 +118,15 @@ namespace MBUtility
 	{
 		return(Entry.last_write_time().time_since_epoch().count());
 	}
-	FSObjectInfo OS_Filesystem::GetInfo(std::string const& Path, FilesystemError* OutError)
+	FSObjectInfo OS_Filesystem::GetInfo(std::string const& InPath, FilesystemError* OutError)
 	{
 		FSObjectInfo ReturnValue;
+        std::filesystem::path Path = m_CurrentDirectory/InPath;
+		if (!std::filesystem::exists(Path))
+		{
+			*OutError = FilesystemError::EntryDoesntExist;
+			return(ReturnValue);
+		}
 		//std::error_code Error;
 		//std::filesystem::directory_entry Entry = std::filesystem::directory_entry(m_CurrentDirectory / Path, Error);
 		//if (Error)
