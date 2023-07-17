@@ -28,6 +28,7 @@ namespace MBUtility
         Dynamic(Dynamic&& Argument) noexcept
         {
             std::swap(m_Data,Argument.m_Data);
+            Argument.m_Data = std::make_unique<T>();
         }
 
 
