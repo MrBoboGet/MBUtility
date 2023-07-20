@@ -71,7 +71,6 @@ namespace MBUtility
         {
             m_Buffer = std::string(ReadSize,0);
             m_Stream = std::move(InputStream);
-            p_FillBuffer();
         }
 
         size_t Position() const
@@ -181,6 +180,7 @@ namespace MBUtility
             size_t NewReadSize = std::min(ReadSize,m_CurrentBufferSize-m_CurrentOffset);
             std::memcpy(Buffer,m_Buffer.data()+m_CurrentOffset,NewReadSize);
             m_CurrentOffset += NewReadSize;
+            ReturnValue = NewReadSize;
             return ReturnValue;
         }
         size_t Read(void* Buffer,size_t ReadSize) override

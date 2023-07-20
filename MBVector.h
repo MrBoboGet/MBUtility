@@ -4,9 +4,17 @@
 #include <new>
 #include <type_traits>
 #include <cstddef>
+
+//kinda lmao, used for debugging
+#include <vector>
+#include <assert.h>
 namespace MBUtility
 {
     class EmptyClass
+    {
+          
+    };
+    class Empty2
     {
           
     };
@@ -16,8 +24,16 @@ namespace MBUtility
     protected:
         alignas(T) char m_PreallocatedBuffer[sizeof(T)*BufferSize];
     };
-    template <typename T,size_t BufferSize,typename IndexType = size_t,class Allocator = std::allocator<T>>
-    class MBVector : std::conditional<BufferSize != 0,MBPreallocatedBase<T,BufferSize>,EmptyClass>::type
+
+    template<typename T>
+    class DebugBase
+    {
+        protected:
+        std::vector<T> DebugVector;
+    };
+    template <typename T,size_t BufferSize,typename IndexType = size_t,class Allocator = std::allocator<T>,bool Debug=false>
+    class MBVector : std::conditional<BufferSize != 0,MBPreallocatedBase<T,BufferSize>,EmptyClass>::type,
+                     std::conditional<Debug,DebugBase<T>,Empty2>::type
     {
     private:
         static constexpr int GrowthFactor = 2;
@@ -29,7 +45,7 @@ namespace MBUtility
         {
             if constexpr( BufferSize != 0)
             {
-                if(m_Size <= BufferSize)
+                if(m_Size <= BufferSize && m_DynamicBuffer == nullptr)
                 {
                     return std::launder(reinterpret_cast<T*>(MBVector::m_PreallocatedBuffer));
                 }
@@ -40,12 +56,40 @@ namespace MBUtility
         {
             if constexpr( BufferSize != 0)
             {
-                if(m_Size <= BufferSize)
+                if(m_Size <= BufferSize && m_DynamicBuffer == nullptr)
                 {
                     return std::launder(reinterpret_cast<T const*>(MBVector::m_PreallocatedBuffer));
                 }
             }
             return(m_DynamicBuffer);
+        }
+
+        T const* p_GetPreAllocatedBuffer_Const() const
+        {
+            if constexpr( BufferSize != 0)
+            {
+                return std::launder(reinterpret_cast<T const*>(MBVector::m_PreallocatedBuffer));
+            }
+            return m_DynamicBuffer;
+        }
+        T * p_GetPreAllocatedBuffer() 
+        {
+            return const_cast<T*>(p_GetPreAllocatedBuffer_Const());
+        }
+        T const* p_GetPreAllocatedBuffer()  const
+        {
+            return p_GetPreAllocatedBuffer_Const();
+        }
+        bool p_IsDynamic() const
+        {
+            if constexpr( BufferSize != 0)
+            {
+                if(m_Size <= BufferSize && m_DynamicBuffer == nullptr)
+                {
+                    return false;
+                }
+            }
+            return true;
         }
         void p_Reserve(IndexType NewCapacity)
         {
@@ -81,15 +125,15 @@ namespace MBUtility
         }
         void swap(MBVector& Left,MBVector& Right) noexcept
         {
-            if(std::min(Left.m_Size,Right.m_Size) <= BufferSize)
+            if(!Left.p_IsDynamic() || !Right.p_IsDynamic())
             {
-                //Lesser is guaranteed to use the preallocated buffer
-                MBVector* Lesser = Left.m_Size < Right.m_Size ? &Left : &Right;
-                MBVector* Greater = Lesser == &Left ? &Right : &Left;
-                T* LesserData = Lesser->p_Data(); 
-                T* GreaterData = Greater->p_Data(); 
-                if(Lesser->m_Size <= BufferSize && Greater->m_Size <= BufferSize)
+                if(!Left.p_IsDynamic() && !Right.p_IsDynamic())
                 {
+                    //Lesser is guaranteed to use the preallocated buffer
+                    MBVector* Lesser = Left.m_Size < Right.m_Size ? &Left : &Right;
+                    MBVector* Greater = Lesser == &Left ? &Right : &Left;
+                    T* LesserData = Lesser->p_Data(); 
+                    T* GreaterData = Greater->p_Data(); 
                     //Both use preallcoated 
                     for(IndexType i = 0; i < std::min(Lesser->m_Size,Greater->m_Size);i++)
                     {
@@ -102,9 +146,11 @@ namespace MBUtility
                 }
                 else
                 {
-                    for(IndexType i = 0; i < Lesser->m_Size;i++)
+                    MBVector* NonDynamic = !Left.p_IsDynamic() ? &Left : &Right;
+                    MBVector* Dynamic = NonDynamic == &Left ? &Right : &Left;
+                    for(IndexType i = 0; i < NonDynamic->m_Size;i++)
                     {
-                        swap_uninitialized(LesserData[i],GreaterData[i]);
+                        swap_uninitialized(NonDynamic->p_GetPreAllocatedBuffer()[i],Dynamic->p_GetPreAllocatedBuffer()[i]);
                     }
                 }
             }
@@ -112,6 +158,18 @@ namespace MBUtility
             std::swap(Left.m_Allocator,Right.m_Allocator);
             std::swap(Left.m_Capacity,Right.m_Capacity);
             std::swap(Left.m_Size,Right.m_Size);
+            if constexpr(Debug)
+            {
+                std::swap(Left.DebugVector,Right.DebugVector);
+            }
+        }
+
+        void p_AssertDebug()
+        {
+            if constexpr(Debug)
+            {
+                assert(*this == MBVector::DebugVector);
+            }
         }
     public:
         T& operator[](IndexType Index)
@@ -128,14 +186,73 @@ namespace MBUtility
             m_Size += 1;
             T* Buffer = p_Data(); 
             new(Buffer+(m_Size-1)) T(std::move(ValueToAdd));
+            if constexpr(Debug)
+            {
+                MBVector::DebugVector.push_back((*this)[m_Size-1]);
+                assert(MBVector::DebugVector == *this);
+            }
         }
         size_t size() const
         {
             return(m_Size);
         }
+        T& back()
+        {
+            if constexpr(Debug)
+            {
+                assert(p_Data()[m_Size-1] == MBVector::DebugVector.back());
+            }
+            return p_Data()[m_Size-1];
+        }
+        T const& back() const
+        {
+            if constexpr(Debug)
+            {
+                assert(p_Data()[m_Size-1] == MBVector::DebugVector.back());
+            }
+            return p_Data()[m_Size-1];
+        }
+
+        void resize(size_t NewSize)
+        {
+            if(NewSize > m_Size)
+            {
+                for(IndexType i = m_Size; i < NewSize;i++)
+                {
+                    push_back(T());
+                }
+            }
+            else if(NewSize < m_Size)
+            {
+                if constexpr(!std::is_trivially_copyable<T>::value)
+                {
+                    T* Data = p_Data();
+                    for(IndexType i = NewSize; i < m_Size;i++)
+                    {
+                        Data[i].~T();
+                    }
+                }
+            }
+            m_Size = NewSize;
+            if constexpr(Debug)
+            {
+                MBVector::DebugVector.resize(NewSize);
+                assert(*this == MBVector::DebugVector);
+            }
+        }
+        void pop_back()
+        {
+            resize(m_Size-1);
+        }
+
+
         void reserve(IndexType NewCapacity)
         {
             p_Reserve(NewCapacity);    
+            if constexpr(Debug)
+            {
+                assert(*this == MBVector::DebugVector.back());
+            }
         }
 
         T* data()
@@ -179,12 +296,32 @@ namespace MBUtility
         MBVector& operator=(MBVector VectorToCopy)
         {
             swap(*this,VectorToCopy);
+            p_AssertDebug();
             return(*this);
         }
         MBVector() = default;
         MBVector(MBVector&& VectorToSwap) noexcept
         {
             swap(VectorToSwap,*this);       
+            p_AssertDebug();
+        }
+        MBVector(std::initializer_list<T> Elems)
+        {
+            p_Reserve(Elems.size());
+            for(auto const& Value : Elems)
+            {
+                push_back(Value);   
+            }
+            p_AssertDebug();
+        }
+        MBVector& operator=(std::initializer_list<T> Elems)
+        {
+            p_Reserve(Elems.size());
+            for(auto const& Value : Elems)
+            {
+                push_back(Value);   
+            }
+            p_AssertDebug();
         }
         //TODO might have room for optimization
         MBVector(IndexType Count, T const& Value = T())
@@ -194,7 +331,12 @@ namespace MBUtility
             for(auto It = 0; It < Count;It++)
             {
                 new(p_Data()+It) T(Value);           
+                if constexpr(Debug)
+                {
+                    MBVector::DebugVector.push_back(Value);
+                }
             }
+            p_AssertDebug();
         }
         MBVector(MBVector const& VectorToCopy)
         {
@@ -210,8 +352,50 @@ namespace MBUtility
                 for(IndexType i = 0; i < VectorToCopy.m_Size;i++)
                 {
                     new (Data+i) T(VectorToCopy[i]);
+                    if constexpr(Debug)
+                    {
+                        MBVector::DebugVector.push_back(VectorToCopy[i]);
+                    }
                 }
             }
+            p_AssertDebug();
+        }
+        bool operator==(std::vector<T> const& StandardVector) const
+        {
+            if(size() != StandardVector.size())
+            {
+                return false;   
+            }
+            bool ReturnValue = true;
+            for(IndexType i = 0; i < size();i++)
+            {
+                if((*this)[i] != StandardVector[i])
+                {
+                    return false;   
+                }
+            }
+            return ReturnValue;
+        }
+        friend bool operator==(std::vector<T> const& lhs,MBVector const& rhs) 
+        {
+            return rhs == lhs;
+        }
+
+        T* begin()
+        {
+            return p_Data();   
+        }
+        T* end()
+        {
+            return p_Data()+m_Size;   
+        }
+        T const* begin() const
+        {
+            return p_Data();   
+        }
+        T const* end() const
+        {
+            return p_Data()+m_Size;   
         }
         ~MBVector()
         {

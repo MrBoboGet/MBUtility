@@ -32,6 +32,23 @@ namespace MBUtility
         }
 
 
+        bool operator==(Dynamic const& OtherValue) const
+        {
+            return *m_Data == *OtherValue.m_Data;
+        }
+        bool operator==(T const& Rhs) const
+        {
+            return *m_Data == *Rhs;
+        }
+        bool operator!=(Dynamic const& OtherValue) const
+        {
+            return !(*this == OtherValue);
+        }
+        bool operator!=(T const& Rhs) const
+        {
+            return !(*this == Rhs);
+        }
+        
         template<typename Arg>
         T& operator=(Arg&& Argument)
         {
