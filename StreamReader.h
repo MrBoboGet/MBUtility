@@ -43,6 +43,20 @@ namespace MBUtility
         }
     };
 
+    class IndeterminateInputStream_Ref : public IndeterminateInputStream
+    {
+        IndeterminateInputStream* m_Ref = nullptr;
+    public:
+        IndeterminateInputStream_Ref(IndeterminateInputStream* Ref)
+        {
+            m_Ref = Ref;
+        }
+        virtual size_t ReadSome(void* Buffer,size_t BufferSize)
+        {
+            return m_Ref->ReadSome(Buffer,BufferSize);
+        }
+    };
+
     
     class StreamReader : public IndeterminateInputStream, public MBOctetInputStream
     {
@@ -147,23 +161,22 @@ namespace MBUtility
             {
                 throw std::runtime_error("EOF end reached, cannot peek byte");
             }
-            return m_Buffer[m_CurrentOffset];
-        }
-        char ReadByte()
-        {
-            if(EOFReached())
-            {
-                throw std::runtime_error("EOF end reached, cannot read byte");
-            }
-            char ReturnValue = m_Buffer[m_CurrentOffset];
-            m_CurrentOffset += 1;
             if(m_CurrentOffset == m_CurrentBufferSize)
             {
                 p_FillBuffer();
             }
+            if(EOFReached())
+            {
+                throw std::runtime_error("EOF end reached, cannot peek byte");
+            }
+            return m_Buffer[m_CurrentOffset];
+        }
+        char ReadByte()
+        {
+            char ReturnValue = PeekByte();
+            m_CurrentOffset += 1;
             return ReturnValue;
         }
-
         size_t ReadSome(void* Buffer,size_t ReadSize) override
         {
             size_t ReturnValue = 0;
@@ -188,4 +201,18 @@ namespace MBUtility
             return ReadExact(*this,Buffer,ReadSize);
         }
     };
+    inline std::string ReadLine(MBUtility::StreamReader& Reader)
+    {
+        std::string ReturnValue;
+        ReturnValue = Reader.ReadWhile([](char CurrentByte){return CurrentByte != '\n';});
+        if(!Reader.EOFReached())
+        {
+            Reader.ReadByte();
+        }
+        if(ReturnValue.size() > 0 && ReturnValue.back() == '\r')
+        {
+            ReturnValue.resize(ReturnValue.size()-1);
+        }
+        return ReturnValue;
+    }
 };
