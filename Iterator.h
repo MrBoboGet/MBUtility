@@ -1,7 +1,7 @@
 
 namespace MBUtility
 {
-    //Derive from this and implement Increment(), Compare and GetRef
+    //Derive from this and implement Increment(), IsEqual and GetRef
     template<typename T,typename IteratedValue>
     class Iterator_Base
     {

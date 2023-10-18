@@ -110,7 +110,8 @@ namespace MBUtility
                         PreviousBuffer[i].~T();
                     } 
                 }
-                if(m_Capacity > BufferSize && m_DynamicBuffer != nullptr)
+                //if(m_Capacity > BufferSize && m_DynamicBuffer != nullptr)
+                if(p_IsDynamic())
                 {
                     m_Allocator.deallocate(p_Data(),m_Capacity);
                 }
@@ -314,8 +315,19 @@ namespace MBUtility
             }
             p_AssertDebug();
         }
+
+        void clear()
+        {
+            T* Data = p_Data();
+            for(size_t i = 0; i < m_Size;i++)
+            {
+                Data->~T();   
+            }
+            m_Size = 0;
+        }
         MBVector& operator=(std::initializer_list<T> Elems)
         {
+            clear();
             p_Reserve(Elems.size());
             for(auto const& Value : Elems)
             {
@@ -407,7 +419,7 @@ namespace MBUtility
                     Data[i].~T();
                 }
             }
-            if(m_Size > BufferSize)
+            if(p_IsDynamic())
             {
                 m_Allocator.deallocate(Data,m_Capacity);   
             }

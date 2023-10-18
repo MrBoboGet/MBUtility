@@ -124,7 +124,13 @@ namespace MBUtility
                 if(Pred(m_Buffer[m_CurrentOffset]))
                 {
                     Doer(m_Buffer[m_CurrentOffset]);
+                    m_CurrentOffset += 1;   
                 }
+                else
+                {
+                    break;
+                }
+
             }
         }
         template<typename PredType>
