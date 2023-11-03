@@ -32,4 +32,19 @@ namespace MBUtility
         }
         return(ReturnValue);
     }
+    inline size_t Read(IndeterminateInputStream& Stream,void* Buffer,size_t BufferSize)
+    {
+        size_t ReturnValue = 0;
+        char* ByteBuffer = (char*)Buffer;
+        while(ReturnValue < BufferSize)
+        {
+            size_t ReadBytes = Stream.ReadSome(ByteBuffer+ReturnValue,BufferSize-ReturnValue);
+            if(ReadBytes == 0)
+            {
+                break;
+            }
+            ReturnValue += ReadBytes;
+        }
+        return(ReturnValue);
+    }
 }

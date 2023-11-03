@@ -67,7 +67,7 @@ namespace MBUtility
 	SEEK_CUR
 	SEEK_END
 	*/
-	class MBSearchableInputStream : public MBOctetInputStream
+	class MBSearchableInputStream : virtual public MBOctetInputStream
 	{
 	public:
 		virtual uint64_t SetInputPosition(int64_t Offset,int whence = SEEK_SET) = 0;

@@ -58,12 +58,12 @@ namespace MBUtility
     };
 
     
-    class StreamReader : public IndeterminateInputStream, public MBOctetInputStream
+    class StreamReader : public IndeterminateInputStream, virtual public MBOctetInputStream
     {
         std::string m_Buffer;
         size_t m_CurrentOffset = 0;
         size_t m_CurrentBufferSize = 0;
-        size_t m_TotalOffset = 0;
+        uint_least64_t m_TotalOffset = 0;
         bool m_EOFReached = false;
         std::unique_ptr<IndeterminateInputStream> m_Stream;
 
@@ -80,7 +80,39 @@ namespace MBUtility
             m_CurrentBufferSize = ReadBytes;
             m_CurrentOffset = 0;
         }
+    protected:
+        void p_ClearBuffer()
+        {
+            m_CurrentOffset = 0;
+            m_CurrentBufferSize = 0;
+            m_TotalOffset = 0;
+        }
+        void p_ClearEOF()
+        {
+            m_EOFReached = false;
+        }
+        void p_SetTotalOffset(uint_least64_t NewTotalOffset)
+        {
+            m_TotalOffset = NewTotalOffset;
+        }
+        uint_least64_t p_GetTotalOffset()
+        {
+            return m_TotalOffset;   
+        }
+        //kinda hacky
+        IndeterminateInputStream* p_GetUnderlyingStream()
+        {
+            return m_Stream.get();
+        }
     public:
+        StreamReader(StreamReader const&) = delete;
+        StreamReader(StreamReader&&) = default;
+        StreamReader& operator=(StreamReader const&) = delete;
+        virtual ~StreamReader()
+        {
+               
+        }
+
         StreamReader(std::unique_ptr<IndeterminateInputStream> InputStream)
         {
             m_Buffer = std::string(ReadSize,0);
@@ -204,7 +236,7 @@ namespace MBUtility
         }
         size_t Read(void* Buffer,size_t ReadSize) override
         {
-            return ReadExact(*this,Buffer,ReadSize);
+            return MBUtility::Read(*this,Buffer,ReadSize);
         }
     };
     inline std::string ReadLine(MBUtility::StreamReader& Reader)

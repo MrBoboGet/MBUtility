@@ -1,8 +1,10 @@
+#pragma once
 #include "IndeterminateInputStream.h"
 #include "MBInterfaces.h"
+#include "SearchableIndeterminateInputStream.h"
 namespace MBUtility
 {
-    class InputFileStream : public MBSearchableInputStream, public IndeterminateInputStream
+    class InputFileStream : public SearchableIndeterminateInputStream
     {
         std::ifstream m_OpenFile;
         uint64_t m_Position = 0;
