@@ -151,7 +151,14 @@ namespace MBUtility
             m_TasksAvailableConditional.notify_one();
             return ReturnValue;
         }
-
+        void Join()
+        {
+            std::unique_lock<std::mutex> Lock(m_TaskMutex);
+            while(m_BusyThreads.load() > 0)
+            {
+                m_TaskFinishedConditional.wait(Lock);
+            }
+        }
         //void WaitAll()
         //{
         //    std::unique_lock<std::mutex> TaskFinishedLock(m_TaskFinishedMutex);
