@@ -32,6 +32,7 @@
                 "/MBErrorHandling.cpp",
                 "/MBFiles.cpp",
                 "/MBInterfaces.cpp",
+                "/LineRetriever.cpp",
                 "/MBMatrix.cpp"
             ],
             "TargetType":"Library"
@@ -47,6 +48,7 @@
                 "/MBFiles.cpp",
                 "/MBInterfaces.cpp",
                 "/MBMatrix.cpp",
+                "/LineRetriever.cpp",
                 "/MBUtilityTest.cpp"
             ],
             "TargetType":"Executable"
