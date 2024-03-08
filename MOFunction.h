@@ -33,7 +33,7 @@ namespace MBUtility
     template<typename ReturnType,typename... ArgTypes>
     class MOFunction<ReturnType(ArgTypes...)>
     {
-        std::unique_ptr<i_FunctionInterface<ReturnType,ArgTypes...>> m_StoredFunction;
+        std::unique_ptr<i_FunctionInterface<ReturnType,ArgTypes...>> m_StoredFunction = nullptr;
     public:
         MOFunction(MOFunction const&) = delete;
         MOFunction(MOFunction&& FunctionToSwap) noexcept 
@@ -45,6 +45,10 @@ namespace MBUtility
         MOFunction()
         {
 
+        }
+        bool IsEmpty() const
+        {
+            return m_StoredFunction == nullptr;
         }
         ReturnType operator()(ArgTypes... Args)
         {
