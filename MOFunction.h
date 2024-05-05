@@ -1,3 +1,4 @@
+#pragma once
 #include <utility>
 #include <memory>
 #include <stdexcept>
@@ -64,6 +65,23 @@ namespace MBUtility
             //m_StoredFunction = std::make_unique<i_FunctionStorer<StoredType,ReturnType,ArgTypes...>>(std::move(FunctionToStore));
             m_StoredFunction = std::unique_ptr<i_FunctionStorer<StoredType,ReturnType,ArgTypes...>>( 
                     new i_FunctionStorer<StoredType,ReturnType,ArgTypes...>(std::move(FunctionToStore)));
+        }
+
+        friend bool operator==(MOFunction const& lhs, std::nullptr_t)
+        {
+            return lhs.m_StoredFunction == nullptr;   
+        }
+        friend bool operator==(std::nullptr_t,MOFunction const& rhs)
+        {
+            return rhs.m_StoredFunction == nullptr;   
+        }
+        friend bool operator!=(std::nullptr_t,MOFunction const& rhs)
+        {
+            return !(rhs == nullptr);
+        }
+        friend bool operator!=(MOFunction const& lhs,std::nullptr_t)
+        {
+            return !(lhs == nullptr);
         }
     };
 };
