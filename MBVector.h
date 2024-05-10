@@ -393,6 +393,12 @@ namespace MBUtility
             return rhs == lhs;
         }
 
+        template<size_t BuffSize,typename IndType,typename AllocatorType>
+        bool operator<(MBVector<T,BuffSize,IndType,AllocatorType> const& rhs) const
+        {
+            return std::lexicographical_compare(begin(),end(),rhs.begin(),rhs.end());
+        }
+
         T* begin()
         {
             return p_Data();   
