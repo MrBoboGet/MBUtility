@@ -6,12 +6,12 @@ namespace MBUtility
     template<typename T,typename ... Rest>
     struct TypeIndex<T,T,Rest...>
     {
-        size_t value = 0;
+        static constexpr size_t value = 0;
     };
     template<typename T,typename Head,typename ... Rest>
     struct TypeIndex<T,Head,Rest...>
     {
-        size_t value = TypeIndex<T,Rest...>::value;
+        static constexpr size_t value = TypeIndex<T,Rest...>::value + 1;
     };
 
     template<typename... T>

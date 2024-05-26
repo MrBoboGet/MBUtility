@@ -44,15 +44,6 @@ namespace MBUtility
             return std::get<T>(m_Content);
         }
         template <typename T,typename = std::enable_if_t<std::is_constructible_v<VariantType,T>>>
-        T const& GetOrAssign() const
-        {
-            if(!IsType<T>())
-            {
-                *this = T();
-            }
-            return GetType<T>();
-        }
-        template <typename T,typename = std::enable_if_t<std::is_constructible_v<VariantType,T>>>
         T& GetOrAssign()
         {
             if(!IsType<T>())
@@ -61,11 +52,22 @@ namespace MBUtility
             }
             return GetType<T>();
         }
+        template <typename T,typename... ArgTypes,typename = std::enable_if_t<std::is_constructible_v<VariantType,T>>>
+        T& emplace(ArgTypes&&... Args)
+        {
+            m_Content = T(std::forward(Args)...);
+            return std::get<T>(m_Content);
+        }
 
         template <typename T>
-        void Visit(T& Visitor) const
+        auto Visit(T&& Visitor) const
         {
-            return std::visit(Visitor,m_Content);
+            return std::visit(std::forward<T>(Visitor),m_Content);
+        }
+        template <typename T>
+        auto Visit(T&& Visitor)
+        {
+            return std::visit(std::forward<T>(Visitor),m_Content);
         }
     };
 }
