@@ -5,6 +5,10 @@
 #include <cstring>
 
 #include "MBInterfaces.h"
+
+#include <assert.h>
+
+#include "Iterator.h"
 namespace MBUtility
 {
 
@@ -80,6 +84,68 @@ namespace MBUtility
             m_CurrentBufferSize = ReadBytes;
             m_CurrentOffset = 0;
         }
+        void p_AddToBuffer()
+        {
+            assert(m_CurrentBufferSize != m_Buffer.size());
+            size_t ReadBytes = m_Stream->ReadSome(m_Buffer.data()+m_CurrentBufferSize,m_Buffer.size()-m_CurrentBufferSize);
+            //if(ReadBytes == 0)
+            //{
+            //    m_EOFReached = true;   
+            //}
+            m_CurrentBufferSize += ReadBytes;
+        }
+        void p_ExtendBuffer()
+        {
+            size_t NewSize = m_Buffer.size();
+            if(m_CurrentOffset == 0)
+            {
+                NewSize *= 2;
+            }
+            std::string NewBuffer = std::string(NewSize,0);
+            std::memcpy(NewBuffer.data(),m_Buffer.data(),m_Buffer.size());
+            m_CurrentBufferSize -= m_CurrentOffset;
+            m_CurrentOffset = 0;
+        }
+
+        class PeekIterator : public Bidir_Base<PeekIterator,const char>
+        {
+            friend class StreamReader;
+            MBUtility::StreamReader* m_AssociatedReader = nullptr;
+            bool m_Finished = false;
+            size_t m_Offset = -1;
+        public:
+            typedef std::bidirectional_iterator_tag iterator_category;
+            void Increment()
+            {
+                m_Offset += 1;
+                if(m_AssociatedReader->m_CurrentOffset+m_Offset == m_AssociatedReader->m_CurrentBufferSize)
+                {
+                    if(m_AssociatedReader->m_CurrentOffset+m_Offset == m_AssociatedReader->m_Buffer.size())
+                    {
+                        m_AssociatedReader->p_ExtendBuffer();
+                    }
+                    m_AssociatedReader->p_AddToBuffer();
+                    if(m_AssociatedReader->m_CurrentOffset+m_Offset == m_AssociatedReader->m_CurrentBufferSize)
+                    {
+                        m_Finished = true;
+                    }
+                }
+            }
+            void Decrement()
+            {
+                m_Offset -= 1;
+                if(m_Finished)
+                    m_Finished = false;
+            }
+            const char& GetRef() const
+            {
+                return m_AssociatedReader->m_Buffer[m_AssociatedReader->m_CurrentOffset+m_Offset];
+            }
+            bool IsEqual(PeekIterator const& rhs) const
+            {
+                return (m_Finished == rhs.m_Finished) || (m_AssociatedReader == rhs.m_AssociatedReader && m_Offset == rhs.m_Offset);
+            }
+        };
     protected:
         void p_ClearBuffer()
         {
@@ -105,6 +171,22 @@ namespace MBUtility
             return m_Stream.get();
         }
     public:
+
+        //weird interface used by tokenizer
+
+        void Consume(PeekIterator& It,size_t ConsumedBytesCount)
+        {
+            if(ConsumedBytesCount > It.m_Offset)
+            {
+                throw std::runtime_error("Invalid ConsumedBytesCount: iterator must have atleast as large offset as the consumed bytes");
+            }
+            if(It != PeekIterator())
+            {
+                m_CurrentOffset += ConsumedBytesCount;
+                It.m_Offset -= ConsumedBytesCount;
+            }
+        }
+
         StreamReader(StreamReader const&) = delete;
         StreamReader(StreamReader&&) = default;
         StreamReader& operator=(StreamReader const&) = delete;
@@ -112,6 +194,20 @@ namespace MBUtility
         {
                
         }
+
+        PeekIterator end()
+        {
+            PeekIterator ReturnValue;
+            return ReturnValue;
+        }
+        //always tries to read atleast one byte
+        PeekIterator begin()
+        {
+            PeekIterator ReturnValue;
+            ReturnValue.Increment();
+            return ReturnValue;
+        }
+
 
         StreamReader(std::unique_ptr<IndeterminateInputStream> InputStream)
         {
@@ -148,8 +244,7 @@ namespace MBUtility
         {
             while(!EOFReached())
             {
-                if(m_CurrentOffset == m_CurrentBufferSize)
-                {
+                if(m_CurrentOffset == m_CurrentBufferSize) {
                     p_FillBuffer();
                     continue;
                 }
@@ -180,6 +275,34 @@ namespace MBUtility
                 {
                     ReturnValue += m_Buffer[m_CurrentOffset];
                     m_CurrentOffset += 1;
+                }
+                else
+                {
+                    break;   
+                }
+            }
+            return ReturnValue;
+        }
+        template<typename PredType>
+        std::string PeekWhile(PredType const& Pred)
+        {
+            std::string ReturnValue;
+            size_t VirtualOffset = 0;
+            while(!EOFReached())
+            {
+                if(m_CurrentOffset+VirtualOffset == m_CurrentBufferSize)
+                {
+                    if(m_CurrentOffset+VirtualOffset == m_Buffer.size())
+                    {
+                        p_ExtendBuffer();
+                    }
+                    p_AddToBuffer();
+                    continue;
+                }
+                if(Pred(m_Buffer[VirtualOffset+m_CurrentOffset]))
+                {
+                    ReturnValue += m_Buffer[VirtualOffset+m_CurrentOffset];
+                    VirtualOffset += 1;
                 }
                 else
                 {

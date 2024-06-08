@@ -74,6 +74,7 @@ namespace MBUtility
                 m_Buffer = m_Buffer.substr(m_BufferOffset);
                 m_BufferOffset = 0;
             }
+            ReturnValue = true;
             OutLine = m_CurrentLine;
             m_LineBuffered = false;
         }
