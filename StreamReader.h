@@ -143,7 +143,7 @@ namespace MBUtility
             }
             bool IsEqual(PeekIterator const& rhs) const
             {
-                return (m_Finished == rhs.m_Finished) || (m_AssociatedReader == rhs.m_AssociatedReader && m_Offset == rhs.m_Offset);
+                return (m_Finished && rhs.m_Finished) || (m_Offset == rhs.m_Offset);
             }
         };
     protected:
@@ -198,12 +198,14 @@ namespace MBUtility
         PeekIterator end()
         {
             PeekIterator ReturnValue;
+            ReturnValue.m_Finished = true;
             return ReturnValue;
         }
         //always tries to read atleast one byte
         PeekIterator begin()
         {
             PeekIterator ReturnValue;
+            ReturnValue.m_AssociatedReader = this;
             ReturnValue.Increment();
             return ReturnValue;
         }
