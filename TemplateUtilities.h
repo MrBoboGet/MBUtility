@@ -52,4 +52,8 @@ namespace MBUtility
     };
     template<typename... Types>
     constexpr bool TypeIn_v = TypeIn<Types...>::value;
+
+
+    template<typename... Types>
+    struct TypeList {};
 }

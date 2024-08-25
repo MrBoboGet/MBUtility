@@ -1,4 +1,4 @@
-
+#pragma once
 #include <vector>
 #include <deque>
 #include <thread>
@@ -95,7 +95,14 @@ namespace MBUtility
                         {
                             try
                             {
-                                AssociatedPromise.set_value(BoundFunction());
+                                if constexpr(! std::is_same_v<ReturnType,void>)
+                                {
+                                    AssociatedPromise.set_value(BoundFunction());
+                                }
+                                else
+                                {
+                                    AssociatedPromise.set_value();
+                                }
                             }
                             catch(...)
                             {
