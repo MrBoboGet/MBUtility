@@ -11,6 +11,10 @@ namespace MBUtility
     {
         public:
         virtual ReturnType Invoke(ArgTypes... Args) = 0;
+        virtual ~i_FunctionInterface()
+        {
+               
+        }
     };
 
     template<typename StoredType,typename ReturnType,typename... ArgTypes>
@@ -20,7 +24,7 @@ namespace MBUtility
         public:
         virtual ReturnType Invoke(ArgTypes... Args) override
         {
-            return(m_StoredValue(Args...));
+            return(m_StoredValue(std::move(Args)...));
         }
         i_FunctionStorer(StoredType&& ValueToStore) : m_StoredValue(std::move(ValueToStore))
         {
@@ -51,13 +55,18 @@ namespace MBUtility
         {
             return m_StoredFunction == nullptr;
         }
-        ReturnType operator()(ArgTypes... Args)
+        operator bool () const
+        {
+            return !IsEmpty();   
+        }
+        template<typename... OperatorArgs>
+        ReturnType operator()(OperatorArgs&&... Args)
         {
             if(m_StoredFunction == nullptr)
             {
                 throw std::runtime_error("Cannot invoke empty function");     
             }
-            return(m_StoredFunction->Invoke(Args...));
+            return(m_StoredFunction->Invoke(std::forward<OperatorArgs>(Args)...));
         }
         template<typename StoredType>
         MOFunction(StoredType&& FunctionToStore)
