@@ -14,6 +14,7 @@ namespace MBUtility
     private:
         std::atomic<bool> m_Stopping{false};
         std::vector<std::thread> m_Threads;
+        bool m_Dynamic = false;
         
         //used for spurrious wakeups
         std::condition_variable m_TasksAvailableConditional;
@@ -55,6 +56,14 @@ namespace MBUtility
         ThreadPool(ThreadPool&) = delete;
         ThreadPool& operator=(ThreadPool const&) = delete;
 
+        ThreadPool(int ThreadCount,bool Dynamic)
+        {
+            for(int i = 0; i < ThreadCount;i++)
+            {
+                m_Threads.push_back(std::thread(&ThreadPool::p_TaskThread,this));
+            }
+            m_Dynamic = Dynamic;
+        }
         ThreadPool(int ThreadCount)
         {
             for(int i = 0; i < ThreadCount;i++)
@@ -117,6 +126,10 @@ namespace MBUtility
                             }
                         });
 
+                if(m_Dynamic && m_Tasks.size() > m_BusyThreads.load())
+                {
+                    m_Threads.push_back(std::thread(&ThreadPool::p_TaskThread,this));
+                }
             }
             m_TasksAvailableConditional.notify_one();
             return ReturnValue;

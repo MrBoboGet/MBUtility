@@ -24,7 +24,7 @@ namespace MBUtility
         public:
         virtual ReturnType Invoke(ArgTypes... Args) override
         {
-            return(m_StoredValue(std::move(Args)...));
+            return m_StoredValue(std::forward<ArgTypes>(Args)...);
         }
         i_FunctionStorer(StoredType&& ValueToStore) : m_StoredValue(std::move(ValueToStore))
         {
