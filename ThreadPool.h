@@ -110,6 +110,7 @@ namespace MBUtility
                                 }
                                 else
                                 {
+                                    BoundFunction();
                                     AssociatedPromise.set_value();
                                 }
                             }
