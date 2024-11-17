@@ -94,13 +94,14 @@ namespace MBUtility
             //}
             m_CurrentBufferSize += ReadBytes;
         }
-        void p_ExtendBuffer()
+        void p_ExtendBuffer(size_t MinSize = 0)
         {
             size_t NewSize = m_Buffer.size();
             if(m_CurrentOffset == 0)
             {
                 NewSize *= 2;
             }
+            NewSize = std::min(NewSize,MinSize);
             std::string NewBuffer = std::string(NewSize,0);
             std::memcpy(NewBuffer.data(),m_Buffer.data(),m_Buffer.size());
             m_CurrentBufferSize -= m_CurrentOffset;
@@ -113,23 +114,33 @@ namespace MBUtility
             MBUtility::StreamReader* m_AssociatedReader = nullptr;
             bool m_Finished = false;
             size_t m_Offset = -1;
+
         public:
+            void Increment(size_t Skip)
+            {
+                m_Offset += Skip;
+                if(m_AssociatedReader->m_CurrentOffset+m_Offset >= m_AssociatedReader->m_CurrentBufferSize)
+                {
+                    if(m_AssociatedReader->m_CurrentOffset+m_Offset >= m_AssociatedReader->m_Buffer.size())
+                    {
+                        m_AssociatedReader->p_ExtendBuffer(m_AssociatedReader->m_CurrentOffset+m_Offset);
+                    }
+                    while(m_AssociatedReader->m_CurrentOffset+m_Offset >= m_AssociatedReader->m_CurrentBufferSize)
+                    {
+                        size_t CurrentSize = m_AssociatedReader->m_CurrentBufferSize;
+                        m_AssociatedReader->p_AddToBuffer();
+                        if(CurrentSize == m_AssociatedReader->m_CurrentBufferSize)
+                        {
+                            m_Finished = true;
+                            break;
+                        }
+                    }
+                }
+            }
             typedef std::bidirectional_iterator_tag iterator_category;
             void Increment()
             {
-                m_Offset += 1;
-                if(m_AssociatedReader->m_CurrentOffset+m_Offset == m_AssociatedReader->m_CurrentBufferSize)
-                {
-                    if(m_AssociatedReader->m_CurrentOffset+m_Offset == m_AssociatedReader->m_Buffer.size())
-                    {
-                        m_AssociatedReader->p_ExtendBuffer();
-                    }
-                    m_AssociatedReader->p_AddToBuffer();
-                    if(m_AssociatedReader->m_CurrentOffset+m_Offset == m_AssociatedReader->m_CurrentBufferSize)
-                    {
-                        m_Finished = true;
-                    }
-                }
+                Increment(1);
             }
             void Decrement()
             {
@@ -179,6 +190,10 @@ namespace MBUtility
             if(ConsumedBytesCount > It.m_Offset)
             {
                 throw std::runtime_error("Invalid ConsumedBytesCount: iterator must have atleast as large offset as the consumed bytes");
+            }
+            if(m_CurrentOffset+ConsumedBytesCount >= m_CurrentBufferSize)
+            {
+                throw std::runtime_error("Invalid consume count: larger than currently allocated buffer");
             }
             if(It != PeekIterator())
             {

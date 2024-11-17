@@ -358,6 +358,14 @@ namespace MBUtility
         WriteData(Lhs,DataToWrite);
         return(Lhs);     
     }
+    inline MBOctetOutputStream& operator<<(MBOctetOutputStream& Lhs,std::string_view DataToWrite)
+    {
+        if(DataToWrite.size() > 0)
+        {
+            Lhs.Write(&DataToWrite[0],DataToWrite.size());
+        }
+        return(Lhs);     
+    }
     inline MBOctetOutputStream& operator<<(MBOctetOutputStream& Lhs,const char* DataToWrite)
     {
         WriteData(Lhs,DataToWrite);
