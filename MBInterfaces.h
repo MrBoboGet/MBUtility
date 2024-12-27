@@ -231,6 +231,11 @@ namespace MBUtility
 		{
 			m_OutputString = &OutputString;
 		}
+		MBStringOutputStream(std::string& OutputString,size_t Offset)
+		{
+			m_OutputString = &OutputString;
+            m_OutputPosition = Offset;
+		}
 		size_t Write(const void* DataToWrite, size_t DataToWriteSize) override
 		{
 			if (m_OutputPosition + DataToWriteSize > m_OutputString->size())
