@@ -78,6 +78,77 @@ namespace MBUtility
             return(ReturnValue);
         }
     };
+
+    //implements Diff, and Advance
+    template<typename T,typename DifferenceType>
+    class RandomAccess_Base 
+    {
+    public:
+        T& operator+=(DifferenceType rhs)
+        {
+            T& Derived = static_cast<T&>(*this);    
+            Derived.Advance(rhs);
+            return Derived;
+        }
+        friend T operator+(T const& lhs,DifferenceType rhs)
+        {
+            T Temp = lhs;
+            Temp.Advance(rhs);
+            return Temp;
+        }
+        friend T operator+(DifferenceType Incr,T const& It)
+        {
+            T Temp = It;
+            Temp.Advance(Incr);
+            return Temp;
+        }
+
+        T& operator-=(DifferenceType rhs)
+        {
+            T& Derived = static_cast<T&>(*this);    
+            Derived.Advance(-rhs);
+            return Derived;
+        }
+
+        T operator-(DifferenceType Incr) const
+        {
+            T ReturnValue = static_cast<T&>(*this);
+            ReturnValue.Advance(-Incr);
+            return ReturnValue;
+        }
+        friend DifferenceType operator-(T const& lhs,T const& rhs)
+        {
+            return rhs.Diff(lhs);
+        }
+
+
+        auto operator[](DifferenceType rhs)
+        {
+            T& Derived = static_cast<T&>(*this);    
+            return *(Derived + rhs);
+        }
+        auto operator[](DifferenceType rhs) const
+        {
+            T const& Derived = static_cast<T const&>(*this);    
+            return *(Derived + rhs);
+        }
+        friend DifferenceType operator<(T const& lhs,T const& rhs)
+        {
+            return (rhs-lhs) > 0;
+        }
+        friend DifferenceType operator>(T const& lhs,T const& rhs)
+        {
+            return rhs < lhs;
+        }
+        friend DifferenceType operator>=(T const& lhs,T const& rhs)
+        {
+            return !(lhs < rhs);
+        }
+        friend DifferenceType operator<=(T const& lhs,T const& rhs)
+        {
+            return !(lhs > rhs);
+        }
+    };
     template<typename T>
     class RangeIterable
     {
