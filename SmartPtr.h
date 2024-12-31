@@ -3,6 +3,8 @@
 #include <variant>
 #include <memory>
 
+#include <stdexcept>
+
 namespace MBUtility
 {
     template<typename T>
@@ -35,6 +37,19 @@ namespace MBUtility
             return *this;
         }
 
+
+        bool IsShared() const
+        {
+            return std::holds_alternative<std::shared_ptr<T>>(m_Data);   
+        }
+        std::shared_ptr<T> GetShared()
+        {
+            if(!IsShared())
+            {
+                throw std::runtime_error("Error getting shared_ptr from SmartPtr: shared ptr not stored");   
+            }
+            return std::get<std::shared_ptr<T>>(m_Data);
+        }
 
         SmartPtr(std::shared_ptr<T> Data)
         {
