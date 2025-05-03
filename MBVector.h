@@ -193,6 +193,20 @@ namespace MBUtility
                 assert(MBVector::DebugVector == *this);
             }
         }
+        template<typename... ArgTypes>
+        T& emplace_back(ArgTypes&&... Args)
+        {
+            p_Reserve(m_Size+1);
+            m_Size += 1;
+            T* Buffer = p_Data(); 
+            new(Buffer+(m_Size-1)) T(std::forward<ArgTypes>(Args)...);
+            if constexpr(Debug)
+            {
+                MBVector::DebugVector.push_back((*this)[m_Size-1]);
+                assert(MBVector::DebugVector == *this);
+            }
+            return back();
+        }
         size_t size() const
         {
             return(m_Size);
