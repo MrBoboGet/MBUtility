@@ -76,7 +76,7 @@ namespace MBUtility
         void p_FillBuffer()
         {
             m_TotalOffset += m_CurrentBufferSize;
-            size_t ReadBytes = m_Stream->ReadSome(m_Buffer.data(),ReadSize);
+            size_t ReadBytes = m_Stream->ReadSome(m_Buffer.data(),m_Buffer.size());
             if(ReadBytes == 0)
             {
                 m_EOFReached = true;   
@@ -101,10 +101,11 @@ namespace MBUtility
             {
                 NewSize *= 2;
             }
-            NewSize = std::min(NewSize,MinSize);
+            NewSize = std::max(NewSize,MinSize);
             std::string NewBuffer = std::string(NewSize,0);
-            std::memcpy(NewBuffer.data(),m_Buffer.data(),m_Buffer.size());
+            std::memcpy(NewBuffer.data(),m_Buffer.data()+m_CurrentOffset,m_Buffer.size()- m_CurrentOffset);
             m_CurrentBufferSize -= m_CurrentOffset;
+            std::swap(m_Buffer,NewBuffer);
             m_CurrentOffset = 0;
         }
 
