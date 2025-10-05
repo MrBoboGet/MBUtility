@@ -192,7 +192,7 @@ namespace MBUtility
             {
                 throw std::runtime_error("Invalid ConsumedBytesCount: iterator must have atleast as large offset as the consumed bytes");
             }
-            if(m_CurrentOffset+ConsumedBytesCount >= m_CurrentBufferSize)
+            if(m_CurrentOffset+ConsumedBytesCount > m_CurrentBufferSize)
             {
                 throw std::runtime_error("Invalid consume count: larger than currently allocated buffer");
             }

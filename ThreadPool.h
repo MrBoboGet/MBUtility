@@ -78,17 +78,21 @@ namespace MBUtility
         }
         ~ThreadPool()
         {
+            Stop();
+            for(auto& Thread : m_Threads)
+            {
+                Thread.join();
+            }
+        }
+        void Stop()
+        {
            m_Stopping.store(true);    
            {
                std::lock_guard<std::mutex> Lock(m_TaskMutex);
+               m_Tasks.clear();
                m_TasksAvailableConditional.notify_all();
            }
-           for(auto& Thread : m_Threads)
-           {
-               Thread.join();
-           }
         }
-               
 
         template<typename Func,typename... Args>
         decltype(auto) AddTask(Func&& TaskToAdd,Args&&... Arguments)
@@ -175,7 +179,7 @@ namespace MBUtility
         void Join()
         {
             std::unique_lock<std::mutex> Lock(m_TaskMutex);
-            while(m_BusyThreads.load() > 0)
+            while(m_Tasks.size() > 0 || m_BusyThreads.load() > 0)
             {
                 m_TaskFinishedConditional.wait(Lock);
             }
