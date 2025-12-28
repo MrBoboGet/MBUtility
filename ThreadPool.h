@@ -38,6 +38,7 @@ namespace MBUtility
                     }
                     if(m_Stopping.load() || m_Tasks.size() == 0)
                     {
+                        m_TaskFinishedConditional.notify_one();
                         break;   
                     }
                     m_BusyThreads.fetch_add(1);
@@ -50,6 +51,7 @@ namespace MBUtility
                     m_TaskFinishedConditional.notify_one();
                 }
             }
+            m_TaskFinishedConditional.notify_one();
         }
     public:
         ThreadPool(ThreadPool const&) = delete;
