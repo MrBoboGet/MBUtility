@@ -255,21 +255,21 @@ namespace MBMath
             return(MatrixToReturn);
             //nu gör vi nästa steg i eliminationen 
         }
-        //void AppendColumn(MBDynamicMatrix<T> ColumnValues)
-        //{
-        //    if (ColumnValues.NumberOfColumns() != NumberOfRows())
-        //    {
-        //        //error
-        //    }
-        //    else
-        //    {
-        //        long long RowCount = NumberOfRows();
-        //        for (size_t i = 0; i < RowCount; i++)
-        //        {
-        //            MatrixData[i].push_back(ColumnValues(0, i));
-        //        }
-        //    }
-        //}
+        void AppendColumn(MBDynamicMatrix<T> ColumnValues)
+        {
+            //if (ColumnValues.NumberOfColumns() != NumberOfRows())
+            //{
+            //    //error
+            //}
+            //else
+            //{
+            //    long long RowCount = NumberOfRows();
+            //    for (size_t i = 0; i < RowCount; i++)
+            //    {
+            //        MatrixData[i].push_back(ColumnValues(0, i));
+            //    }
+            //}
+        }
         void DivideRow(long long RowToDivide, T ScalarToDivideWith)
         {
             long long ColumnCount = NumberOfColumns();
