@@ -4,6 +4,7 @@
 #include <thread>
 #include <future>
 #include <condition_variable>
+#include <functional>
 
 #include "MOFunction.h"
 
@@ -48,6 +49,7 @@ namespace MBUtility
                 TaskToExecute();
                 m_BusyThreads.fetch_add(-1);
                 {
+                    std::unique_lock<std::mutex> WaitLock(m_TaskMutex);
                     m_TaskFinishedConditional.notify_one();
                 }
             }
