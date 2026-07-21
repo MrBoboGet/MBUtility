@@ -1,4 +1,7 @@
+#pragma once
+#include <cstddef>
 #include <type_traits>
+#include <tuple>
 namespace MBUtility
 {
     template<typename... T>
@@ -56,4 +59,25 @@ namespace MBUtility
 
     template<typename... Types>
     struct TypeList {};
+
+
+
+    namespace internal
+    {
+        template<size_t i, typename FuncType,typename... T>
+        void TupleApply(FuncType&& Func,std::tuple<T...> const& Tuple)
+        {
+            if constexpr(i < std::tuple_size_v<std::tuple<T...>>)
+            {
+                Func(std::get<i>(Tuple));
+                TupleApply<i+1>(Func,Tuple);
+            }
+        }
+    }
+
+    template<typename FuncType,typename... T>
+    void TupleApply(FuncType&& Func,std::tuple<T...> const& Tuple)
+    {
+        internal::TupleApply<0>(Func,Tuple);
+    }
 }
